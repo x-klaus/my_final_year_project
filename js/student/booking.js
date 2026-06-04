@@ -130,6 +130,7 @@ function handleBoardingTimerExpired() {
     try {
       const ticket = JSON.parse(savedTicket);
       archiveBooking(ticket, 'Expired');
+      recordWalletRefund(ticket, 'Expired');
       const expiredRef = normalizeBookingRef(ticket.ref);
       saveBoardedRefs(getBoardedRefs().filter(function (r) { return r !== expiredRef; }));
     } catch (e) { /* ignore */ }
@@ -138,6 +139,7 @@ function handleBoardingTimerExpired() {
   clearStudentActiveBooking();
   setWalletBalance(getWalletBalance() + BOOKING_FARE);
   updateWalletDisplay();
+  renderWalletTransactions();
 
   const countdownEl = document.getElementById('boardingCountdown');
   if (countdownEl) countdownEl.textContent = 'EXPIRED';
@@ -707,13 +709,15 @@ function processBookingPayment() {
 
   setTimeout(function () {
 
-    if (bookingState.paymentMethod === 'wallet') {
-      setWalletBalance(getWalletBalance() - fare);
-      updateWalletDisplay();
-    }
-
     const refNum = '#ATB-' + String(Math.floor(10000 + Math.random() * 90000));
     const ticketData = buildTicketPayload(refNum);
+
+    if (bookingState.paymentMethod === 'wallet') {
+      setWalletBalance(getWalletBalance() - fare);
+      recordWalletBookingDebit(ticketData);
+      updateWalletDisplay();
+      renderWalletTransactions();
+    }
 
     localStorage.removeItem('boardingSecondsLeft');
     localStorage.setItem('hasActiveBooking', 'true');

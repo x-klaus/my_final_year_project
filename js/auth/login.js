@@ -225,6 +225,30 @@ function toggleLoginBtn() {
   btn.style.opacity = (hasIdentifier && passwordFilled) ? '1' : '0.5';
 }
 
+function toggleAdminLoginBtn() {
+  const emailEl = document.getElementById('adminLoginEmail');
+  const passwordEl = document.getElementById('adminLoginPassword');
+  const btn = document.getElementById('adminLoginBtn');
+
+  if (!btn) return;
+
+  const emailFilled = emailEl && emailEl.value.trim().length > 0 && emailEl.value.trim().includes('@');
+  const passwordFilled = passwordEl && passwordEl.value.trim().length > 0;
+  const ready = emailFilled && passwordFilled;
+
+  btn.disabled = !ready;
+  btn.style.opacity = ready ? '1' : '0.5';
+}
+
+function initAdminLoginForm() {
+  const emailEl = document.getElementById('adminLoginEmail');
+  const passwordEl = document.getElementById('adminLoginPassword');
+
+  if (emailEl) emailEl.addEventListener('input', toggleAdminLoginBtn);
+  if (passwordEl) passwordEl.addEventListener('input', toggleAdminLoginBtn);
+  toggleAdminLoginBtn();
+}
+
 
 // HANDLE LOGIN FORM SUBMISSION
 // This runs when the user clicks the "Log In" button.

@@ -31,6 +31,7 @@
                 placeholder="admin@atbu.edu.ng"
                 autocomplete="username"
                 required
+                oninput="toggleAdminLoginBtn()"
               />
             </div>
           </div>
@@ -46,6 +47,7 @@
                 placeholder="Enter your password"
                 autocomplete="current-password"
                 required
+                oninput="toggleAdminLoginBtn()"
               />
             </div>
           </div>
@@ -55,7 +57,7 @@
             <span id="adminLoginErrorText">Invalid credentials. Please try again.</span>
           </div>
 
-          <button type="submit" class="btn btn-primary btn-full btn-lg" id="adminLoginBtn">
+          <button type="submit" class="btn btn-primary btn-full btn-lg" id="adminLoginBtn" disabled style="opacity: 0.5;">
             Sign In
           </button>
         </form>

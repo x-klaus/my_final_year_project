@@ -648,7 +648,16 @@ function applyDriverFeatureLocks() {
   });
 
   const manifestScanBtn = document.getElementById('manifestScanBtn');
-  if (manifestScanBtn) manifestScanBtn.disabled = scanLocked;
+  if (manifestScanBtn) {
+    manifestScanBtn.classList.toggle('driver-action--locked', scanLocked);
+    manifestScanBtn.setAttribute('aria-disabled', scanLocked ? 'true' : 'false');
+    manifestScanBtn.onclick = scanLocked
+      ? function (e) {
+          e.preventDefault();
+          showToast('⚠️ Bus is full. Boarding verification is closed until the trip ends.');
+        }
+      : null;
+  }
 }
 
 function toggleDriverGps() {
@@ -697,11 +706,58 @@ function markPassengerBoarded(ref) {
   return true;
 }
 
-function openDriverScanModal() {
-  if (isDriverVerificationLocked()) {
-    showToast('⚠️ Bus is full. Boarding verification is closed until the trip ends.');
-    return;
-  }
+function ensureDriverScanModal() {
+  if (document.getElementById('driverScanOverlay')) return;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'driverScanOverlay';
+  overlay.className = 'modal-overlay hidden';
+  overlay.innerHTML =
+    '<div class="modal" onclick="event.stopPropagation()">' +
+      '<div class="modal-header">' +
+        '<h3>📱 Scan Boarding QR</h3>' +
+        '<button type="button" class="modal-close" onclick="closeDriverScanModal()" aria-label="Close">✕</button>' +
+      '</div>' +
+      '<div class="modal-body">' +
+        '<p class="modal-desc">Enter the booking reference from the student\'s QR code to verify and mark them as boarded.</p>' +
+        '<div class="form-group">' +
+          '<label for="scanRefInput">Booking Reference</label>' +
+          '<div class="input-wrapper">' +
+            '<span class="input-icon">🎫</span>' +
+            '<input type="text" id="scanRefInput" placeholder="e.g. #ATB-51491" autocomplete="off"/>' +
+          '</div>' +
+        '</div>' +
+        '<div class="form-error hidden" id="scanError">' +
+          '<span>⚠️</span>' +
+          '<span id="scanErrorText">Booking not found.</span>' +
+        '</div>' +
+      '</div>' +
+      '<div class="modal-footer">' +
+        '<button type="button" class="btn btn-outline" onclick="closeDriverScanModal()">Cancel</button>' +
+        '<button type="button" class="btn btn-primary" id="scanVerifyBtn" onclick="verifyPassengerQR()" disabled>Verify &amp; Board</button>' +
+      '</div>' +
+    '</div>';
+
+  overlay.addEventListener('click', function (e) {
+    if (e.target === overlay) closeDriverScanModal();
+  });
+
+  document.body.appendChild(overlay);
+  initDriverScanModal();
+}
+
+function prefillDriverScanRef(ref) {
+  const input = document.getElementById('scanRefInput');
+  if (!input) return;
+  input.value = ref ? String(ref).replace(/^#/, '') : '';
+  input.focus();
+  updateScanVerifyButton();
+  const err = document.getElementById('scanError');
+  if (err) err.classList.add('hidden');
+}
+
+function openDriverScanModal(event) {
+  if (event) event.preventDefault();
   openDriverScanModalForRef('');
 }
 
@@ -726,18 +782,16 @@ function openDriverScanModalForRef(ref) {
     return;
   }
 
-  const overlay = document.getElementById('driverScanOverlay');
-  if (!overlay) return;
-  overlay.classList.remove('hidden');
-  document.body.style.overflow = 'hidden';
-  const input = document.getElementById('scanRefInput');
-  if (input) {
-    input.value = ref ? ref.replace(/^#/, '') : '';
-    input.focus();
+  if (document.getElementById('driverScanPage')) {
+    prefillDriverScanRef(ref);
+    return;
   }
-  updateScanVerifyButton();
-  const err = document.getElementById('scanError');
-  if (err) err.classList.add('hidden');
+
+  var url = 'driver-scan.html';
+  if (ref) {
+    url += '?ref=' + encodeURIComponent(String(ref).replace(/^#/, ''));
+  }
+  window.location.href = url;
 }
 
 function closeDriverScanModal() {
@@ -762,7 +816,13 @@ function verifyPassengerQR() {
 
   const ok = markPassengerBoarded(ref);
   if (ok) {
-    closeDriverScanModal();
+    if (document.getElementById('driverScanPage')) {
+      input.value = '';
+      updateScanVerifyButton();
+      if (err) err.classList.add('hidden');
+    } else {
+      closeDriverScanModal();
+    }
   } else {
     if (errText) errText.textContent = 'Booking not found on BUS-002 or already boarded.';
     if (err) err.classList.remove('hidden');
@@ -972,8 +1032,33 @@ function refreshDriverMapPosition() {
   }, 900);
 }
 
+function initDriverScanPage() {
+  setCurrentDate();
+
+  const routeEl = document.getElementById('driverScanRoute');
+  if (routeEl) routeEl.textContent = DRIVER_PROFILE.route;
+
+  const locked = isDriverVerificationLocked();
+  const lockHint = document.getElementById('driverScanLockHint');
+  if (lockHint) lockHint.hidden = !locked;
+
+  const input = document.getElementById('scanRefInput');
+  const verifyBtn = document.getElementById('scanVerifyBtn');
+  if (locked) {
+    if (input) input.disabled = true;
+    if (verifyBtn) verifyBtn.disabled = true;
+  } else {
+    initDriverScanModal();
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get('ref');
+    if (ref) prefillDriverScanRef(ref);
+    else if (input) input.focus();
+  }
+}
+
 function initDriverMapPage() {
   setCurrentDate();
+  applyDriverFeatureLocks();
   initDriverMap();
   updateDriverMapPanel();
 

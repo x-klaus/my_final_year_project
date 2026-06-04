@@ -2140,6 +2140,64 @@ button.back-circle-btn {
 .wallet-recent-label { color: rgba(255, 255, 255, 0.5); }
 .wallet-recent-value { color: rgba(255, 255, 255, 0.8); }
 
+.student-wallet-content {
+  max-width: none;
+}
+
+.student-wallet-layout {
+  display: grid;
+  grid-template-columns: minmax(280px, 1fr) minmax(300px, 1.15fr);
+  grid-template-areas:
+    "balance activity"
+    "topup .";
+  gap: 24px;
+  align-items: stretch;
+}
+
+.student-wallet-layout .wallet-card--page {
+  grid-area: balance;
+  margin-bottom: 0;
+  min-height: 100%;
+}
+
+.student-wallet-layout #walletTopUpSection {
+  grid-area: topup;
+}
+
+.student-wallet-layout #walletHistorySection {
+  grid-area: activity;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.student-wallet-layout #walletHistorySection .table-wrapper {
+  flex: 1;
+  min-height: 120px;
+}
+
+@media (max-width: 900px) {
+  .student-wallet-layout {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "balance"
+      "topup"
+      "activity";
+    gap: 24px;
+  }
+}
+
+.wallet-page-hint {
+  font-size: 0.82rem;
+  color: #5A7499;
+  line-height: 1.5;
+  margin: 12px 0 0;
+}
+
+.card-body-padding {
+  padding: 0 20px 20px;
+}
+
 .btn-ghost-dark {
   background: rgba(255, 255, 255, 0.12);
   color: white;
@@ -4629,6 +4687,102 @@ button.back-circle-btn {
   color: #5A7499;
   line-height: 1.55;
   margin-bottom: 16px;
+}
+
+.driver-scan-content {
+  max-width: 960px;
+}
+
+.driver-scan-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 24px;
+  align-items: start;
+}
+
+.driver-scan-card .card-header {
+  margin-bottom: 20px;
+}
+
+.driver-scan-camera-zone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 8px;
+  padding: 32px 20px;
+  margin-bottom: 20px;
+  border: 2px dashed #C5D8F5;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #F5F9FF 0%, #EEF4FC 100%);
+}
+
+.driver-scan-camera-icon {
+  font-size: 2.5rem;
+  line-height: 1;
+}
+
+.driver-scan-camera-zone p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #0B2545;
+}
+
+.driver-scan-camera-zone small {
+  font-size: 0.78rem;
+  color: #5A7499;
+}
+
+.driver-scan-desc {
+  font-size: 0.9rem;
+  color: #5A7499;
+  line-height: 1.55;
+  margin-bottom: 20px;
+}
+
+.driver-scan-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.driver-scan-help-card .card-title {
+  margin-bottom: 16px;
+}
+
+.driver-scan-steps {
+  margin: 0 0 16px 1.1rem;
+  padding: 0;
+  font-size: 0.88rem;
+  color: #5A7499;
+  line-height: 1.65;
+}
+
+.driver-scan-steps code {
+  font-size: 0.82rem;
+  background: #EEF4FC;
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #2176FF;
+}
+
+.driver-scan-hint {
+  font-size: 0.82rem;
+  color: #B87A00;
+  background: #FFF8E8;
+  border: 1px solid #FFE4A8;
+  border-radius: 10px;
+  padding: 12px 14px;
+  line-height: 1.5;
+  margin: 0;
+}
+
+@media (max-width: 900px) {
+  .driver-scan-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .live-dot-red {

@@ -38,7 +38,7 @@
           </a>
         </li>
         <li>
-          <a href="#" class="sidebar-link" data-driver-scan onclick="openDriverScanModal()">
+          <a href="driver-scan.html" class="sidebar-link">
             <span class="sidebar-icon">📱</span>
             <span>Scan QR</span>
           </a>
@@ -109,27 +109,27 @@
       </div>
 
       <div class="stats-grid">
-        <div class="stat-card">
+        <a href="driver-manifest.html" class="stat-card stat-card--clickable" title="View all booked passengers">
           <div class="stat-card-icon" style="background: #E8F1FF;">🎫</div>
           <div class="stat-card-info">
             <span class="stat-card-num" id="driverStatBooked">0</span>
             <span class="stat-card-label">Booked Passengers</span>
           </div>
-        </div>
-        <div class="stat-card">
+        </a>
+        <a href="driver-manifest.html#boarded" class="stat-card stat-card--clickable" title="View boarded passengers">
           <div class="stat-card-icon" style="background: #E8F8F0;">✅</div>
           <div class="stat-card-info">
             <span class="stat-card-num" id="driverStatBoarded">0</span>
             <span class="stat-card-label">Boarded</span>
           </div>
-        </div>
-        <div class="stat-card">
+        </a>
+        <a href="driver-manifest.html" class="stat-card stat-card--clickable" title="View passenger manifest and seats">
           <div class="stat-card-icon" style="background: #FFF8E8;">💺</div>
           <div class="stat-card-info">
             <span class="stat-card-num" id="driverStatSeatsLeft">18</span>
             <span class="stat-card-label">Seats Left</span>
           </div>
-        </div>
+        </a>
         <a href="driver-trips.html" class="stat-card stat-card--clickable" id="driverTripsStatCard" title="View today's completed trips">
           <div class="stat-card-icon" style="background: #F0F0FF;">🛣️</div>
           <div class="stat-card-info">
@@ -206,7 +206,7 @@
               <div class="quick-action-icon">👥</div>
               <span>Manifest</span>
             </a>
-            <a href="#" class="quick-action" data-driver-scan onclick="openDriverScanModal()">
+            <a href="driver-scan.html" class="quick-action">
               <div class="quick-action-icon">📱</div>
               <span>Scan QR</span>
             </a>
@@ -261,36 +261,6 @@
       <div class="modal-footer">
         <button type="button" class="btn btn-outline" onclick="closeDriverTripConfirmModal()">Cancel</button>
         <button type="button" class="btn btn-primary" id="driverTripConfirmBtn" onclick="executeDriverTripConfirm()">Confirm</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- QR SCAN MODAL -->
-  <div class="modal-overlay hidden" id="driverScanOverlay" onclick="closeDriverScanModal()">
-    <div class="modal" onclick="event.stopPropagation()">
-      <div class="modal-header">
-        <h3>📱 Scan Boarding QR</h3>
-        <button class="modal-close" onclick="closeDriverScanModal()">✕</button>
-      </div>
-      <div class="modal-body">
-        <p class="modal-desc">
-          Enter the booking reference from the student's QR code to verify and mark them as boarded.
-        </p>
-        <div class="form-group">
-          <label for="scanRefInput">Booking Reference</label>
-          <div class="input-wrapper">
-            <span class="input-icon">🎫</span>
-            <input type="text" id="scanRefInput" placeholder="e.g. #ATB-51491" autocomplete="off"/>
-          </div>
-        </div>
-        <div class="form-error hidden" id="scanError">
-          <span>⚠️</span>
-          <span id="scanErrorText">Booking not found.</span>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-outline" onclick="closeDriverScanModal()">Cancel</button>
-        <button class="btn btn-primary" id="scanVerifyBtn" onclick="verifyPassengerQR()" disabled>Verify &amp; Board</button>
       </div>
     </div>
   </div>

@@ -96,13 +96,17 @@ function toggleWalletBalance() {
 let selectedTopUpAmount = 0;
 
 function openTopUpModal() {
+  const overlay = document.getElementById('topUpOverlay');
+  if (!overlay) return;
   resetTopUpModal();
-  document.getElementById('topUpOverlay').classList.remove('hidden');
+  overlay.classList.remove('hidden');
   document.body.style.overflow = 'hidden'; // prevent background scrolling
 }
 
 function closeTopUpModal() {
-  document.getElementById('topUpOverlay').classList.add('hidden');
+  const overlay = document.getElementById('topUpOverlay');
+  if (!overlay) return;
+  overlay.classList.add('hidden');
   document.body.style.overflow = '';
   resetTopUpModal();
 }
@@ -183,9 +187,15 @@ function processTopUp() {
   }
 
   setWalletBalance(getWalletBalance() + selectedTopUpAmount);
+  recordWalletTopUp(selectedTopUpAmount);
   updateWalletDisplay();
   closeTopUpModal();
+  renderWalletTransactions();
   showToast('✅ Wallet top up of ₦' + selectedTopUpAmount.toLocaleString() + ' successful!');
+
+  if (document.getElementById('studentWalletPage')) {
+    resetTopUpModal();
+  }
 }
 
 
@@ -217,6 +227,7 @@ function executeCancelBooking() {
     try {
       const ticket = JSON.parse(savedTicket);
       archiveBooking(ticket, 'Cancelled');
+      recordWalletRefund(ticket, 'Cancelled');
       const cancelledRef = normalizeBookingRef(ticket.ref);
       const boarded = getBoardedRefs().filter(function (r) { return r !== cancelledRef; });
       saveBoardedRefs(boarded);
@@ -277,19 +288,92 @@ function cancelRequest() {
 }
 
 
-// WALLET HISTORY
-// Placeholder - will show transaction history in the future
-function openWalletHistory() {
-  openPlannedFeature('Wallet History');
+// WALLET HISTORY — credits/debits on student-wallet.html
+function renderWalletTransactions() {
+  const tbody = document.getElementById('walletHistoryBody');
+  const empty = document.getElementById('walletHistoryEmpty');
+  if (!tbody) return;
+
+  syncWalletTransactionsFromBookingHistory();
+  const transactions = getWalletTransactions();
+
+  if (transactions.length === 0) {
+    tbody.innerHTML = '';
+    if (empty) empty.classList.remove('hidden');
+    return;
+  }
+
+  if (empty) empty.classList.add('hidden');
+
+  tbody.innerHTML = transactions.map(function (tx) {
+    const isCredit = tx.type === 'credit';
+    const typeLabel = isCredit ? 'Credit' : 'Debit';
+    const amountStr = (isCredit ? '+' : '−') + '₦' + Number(tx.amount).toLocaleString('en-NG');
+
+    return '<tr>' +
+      '<td>' + formatHistoryDate(tx.date) + '</td>' +
+      '<td>' + tx.description + '</td>' +
+      '<td class="ref-col">' + tx.ref + '</td>' +
+      '<td>' + amountStr + '</td>' +
+      '<td><span class="table-badge ' + (isCredit ? 'badge--success' : 'badge--cancelled') + '">' + typeLabel + '</span></td>' +
+      '</tr>';
+  }).join('');
 }
 
-// OPEN WALLET — top-up modal on dashboard; toast on other pages
+function openWalletHistory() {
+  if (document.getElementById('walletHistorySection')) {
+    document.getElementById('walletHistorySection').scrollIntoView({ behavior: 'smooth' });
+    return;
+  }
+  window.location.href = 'student-wallet.html#history';
+}
+
 function openWallet() {
   if (document.getElementById('topUpOverlay')) {
     openTopUpModal();
-  } else {
-    showToast('💰 Go to dashboard to manage your wallet.');
+    return;
   }
+  if (document.getElementById('studentWalletPage')) {
+    const topUp = document.getElementById('walletTopUpSection');
+    if (topUp) topUp.scrollIntoView({ behavior: 'smooth' });
+    return;
+  }
+  window.location.href = 'student-wallet.html';
+}
+
+function initStudentWalletPage() {
+  setCurrentDate();
+  updateWalletDisplay();
+  renderWalletTransactions();
+  resetTopUpModal();
+
+  const hash = window.location.hash;
+  if (hash === '#history') {
+    const section = document.getElementById('walletHistorySection');
+    if (section) section.scrollIntoView({ behavior: 'smooth' });
+  } else if (hash === '#topup') {
+    const section = document.getElementById('walletTopUpSection');
+    if (section) section.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  initStudentWalletSync();
+}
+
+function initStudentWalletSync() {
+  window.addEventListener('storage', function (e) {
+    if (
+      e.key === WALLET_BALANCE_KEY ||
+      e.key === WALLET_TRANSACTIONS_KEY ||
+      e.key === BOOKING_HISTORY_KEY
+    ) {
+      updateWalletDisplay();
+      renderWalletTransactions();
+    }
+  });
+  window.addEventListener('focus', function () {
+    updateWalletDisplay();
+    renderWalletTransactions();
+  });
 }
 
 
@@ -337,6 +421,7 @@ function updateDashboardStat(statId, value) {
 }
 
 const WALLET_BALANCE_KEY = 'walletBalance';
+const WALLET_TRANSACTIONS_KEY = 'walletTransactions';
 const BOOKING_HISTORY_KEY = 'bookingHistory';
 const DEFAULT_WALLET_BALANCE = 2500;
 const BOOKING_FARE = 600;
@@ -348,6 +433,88 @@ function getWalletBalance() {
 
 function setWalletBalance(amount) {
   localStorage.setItem(WALLET_BALANCE_KEY, String(Math.max(0, amount)));
+}
+
+function getWalletTransactions() {
+  try {
+    return JSON.parse(localStorage.getItem(WALLET_TRANSACTIONS_KEY)) || [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveWalletTransactions(list) {
+  localStorage.setItem(WALLET_TRANSACTIONS_KEY, JSON.stringify(list));
+}
+
+function addWalletTransaction(tx) {
+  const list = getWalletTransactions();
+  if (tx.id && list.some(function (t) { return t.id === tx.id; })) return;
+  list.unshift({
+    id: tx.id || 'tx-' + Date.now(),
+    date: tx.date || new Date().toISOString(),
+    description: tx.description,
+    ref: tx.ref || '—',
+    amount: Number(tx.amount),
+    type: tx.type
+  });
+  saveWalletTransactions(list);
+}
+
+function recordWalletTopUp(amount) {
+  const methodEl = document.querySelector('input[name="payMethod"]:checked');
+  const method = methodEl ? methodEl.value : 'paystack';
+  const label = method === 'flutterwave' ? 'Flutterwave' : 'Paystack';
+  addWalletTransaction({
+    id: 'topup-' + Date.now(),
+    description: 'Wallet top up via ' + label,
+    ref: 'TOP-' + Date.now().toString(36).toUpperCase(),
+    amount: amount,
+    type: 'credit'
+  });
+}
+
+function recordWalletBookingDebit(ticket) {
+  if (!ticket || !ticket.ref) return;
+  addWalletTransaction({
+    id: 'debit-' + normalizeBookingRef(ticket.ref),
+    description: 'Bus booking — ' + ticket.bus + ', Seat ' + ticket.seat,
+    ref: ticket.ref,
+    amount: ticket.fare || BOOKING_FARE,
+    type: 'debit'
+  });
+}
+
+function recordWalletRefund(ticket, status) {
+  if (!ticket || !ticket.ref) return;
+  addWalletTransaction({
+    id: 'refund-' + normalizeBookingRef(ticket.ref) + '-' + status,
+    description: 'Refund — ' + ticket.bus + ' (' + status + ')',
+    ref: ticket.ref,
+    amount: ticket.fare || BOOKING_FARE,
+    type: 'credit'
+  });
+}
+
+function syncWalletTransactionsFromBookingHistory() {
+  if (getWalletTransactions().length > 0) return;
+  const history = getBookingHistory();
+  if (history.length === 0) return;
+
+  const backfill = history.map(function (entry) {
+    const isRefund = entry.status === 'Cancelled' || entry.status === 'Expired';
+    return {
+      id: 'hist-' + entry.ref + '-' + entry.status,
+      date: entry.date,
+      description: isRefund
+        ? 'Refund — ' + entry.bus + ' (' + entry.status + ')'
+        : 'Bus booking — ' + entry.bus + ', Seat ' + entry.seat,
+      ref: entry.ref,
+      amount: Number(entry.amount || BOOKING_FARE),
+      type: isRefund ? 'credit' : 'debit'
+    };
+  });
+  saveWalletTransactions(backfill);
 }
 
 function formatWalletDisplay(amount) {
@@ -390,13 +557,19 @@ function updateWalletRecentActivity() {
   const el = document.getElementById('walletRecentValue');
   if (!el) return;
 
-  const total = getTodayBookingDebitsTotal();
-  if (total <= 0) {
-    el.textContent = 'No bus bookings today';
+  syncWalletTransactionsFromBookingHistory();
+  const transactions = getWalletTransactions();
+  if (transactions.length === 0) {
+    el.textContent = 'No recent activity';
     return;
   }
 
-  el.textContent = '-₦' + total.toLocaleString('en-NG') + ' · Bus booking · Today';
+  const latest = transactions[0];
+  const isCredit = latest.type === 'credit';
+  const sign = isCredit ? '+' : '−';
+  const when = formatHistoryDate(latest.date);
+  const today = new Date().toDateString() === new Date(latest.date).toDateString();
+  el.textContent = sign + '₦' + Number(latest.amount).toLocaleString('en-NG') + ' · ' + latest.description + (today ? ' · Today' : ' · ' + when);
 }
 
 function updateWalletDisplay() {
@@ -694,8 +867,11 @@ function updateTripsCompletedStat() {
 
 function executeClearBookingHistory() {
   localStorage.removeItem(BOOKING_HISTORY_KEY);
+  localStorage.removeItem(WALLET_TRANSACTIONS_KEY);
   renderAllBookingHistoryViews();
+  renderWalletTransactions();
   updateTripsCompletedStat();
+  updateWalletDisplay();
   showToast('📋 Booking history cleared.');
 }
 
@@ -751,12 +927,18 @@ function refreshStudentDashboard() {
   renderAllBookingHistoryViews();
   updateTripsCompletedStat();
   updateWalletDisplay();
+  renderWalletTransactions();
 }
 
 function initStudentHistorySync() {
   window.addEventListener('storage', function (e) {
-    if (e.key === BOOKING_HISTORY_KEY) {
+    if (
+      e.key === BOOKING_HISTORY_KEY ||
+      e.key === WALLET_TRANSACTIONS_KEY ||
+      e.key === WALLET_BALANCE_KEY
+    ) {
       renderAllBookingHistoryViews();
+      renderWalletTransactions();
       updateTripsCompletedStat();
     }
   });
@@ -773,9 +955,12 @@ function initStudentDashboardSync() {
       e.key === 'activeTicket' ||
       e.key === 'driverTripState' ||
       e.key === 'driverBoardedRefs' ||
-      e.key === BOOKING_HISTORY_KEY
+      e.key === BOOKING_HISTORY_KEY ||
+      e.key === WALLET_BALANCE_KEY ||
+      e.key === WALLET_TRANSACTIONS_KEY
     ) {
       refreshStudentDashboard();
+      renderWalletTransactions();
     }
   });
   window.addEventListener('focus', refreshStudentDashboard);

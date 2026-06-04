@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ATBU Smart Transport | Scan QR</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body class="dashboard-page" data-auth-role="driver">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="nav-logo-icon">🚌</div>
+      <div>
+        <div class="nav-logo-text">ATBU Transport</div>
+        <div class="nav-logo-sub">Driver Portal</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <ul>
+        <li>
+          <a href="driver-dashboard.html" class="sidebar-link">
+            <span class="sidebar-icon">🏠</span>
+            <span>Dashboard</span>
+          </a>
+        </li>
+        <li>
+          <a href="driver-trips.html" class="sidebar-link">
+            <span class="sidebar-icon">🛣️</span>
+            <span>Trips Today</span>
+          </a>
+        </li>
+        <li>
+          <a href="driver-manifest.html" class="sidebar-link">
+            <span class="sidebar-icon">👥</span>
+            <span>Passengers</span>
+          </a>
+        </li>
+        <li>
+          <a href="driver-scan.html" class="sidebar-link active">
+            <span class="sidebar-icon">📱</span>
+            <span>Scan QR</span>
+          </a>
+        </li>
+        <li>
+          <a href="driver-map.html" class="sidebar-link">
+            <span class="sidebar-icon">📍</span>
+            <span>Live Map</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="sidebar-link" onclick="openPlannedFeature('Settings')">
+            <span class="sidebar-icon">⚙️</span>
+            <span>Settings</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="login.html" class="sidebar-logout" onclick="handleLogout(event)">
+        <span>🚪</span>
+        <span>Log Out</span>
+      </a>
+    </div>
+  </aside>
+
+  <main class="dashboard-main">
+    <header class="topbar">
+      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+      <div class="topbar-left">
+        <h1 class="topbar-title">Scan Boarding QR</h1>
+        <span class="topbar-date" id="currentDate"></span>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-user">
+          <div class="user-avatar" id="driverAvatar">AD</div>
+          <div class="user-info">
+            <span class="user-name" id="driverName">Abdullahi Danladi</span>
+            <span class="user-role">Driver</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="dashboard-content driver-scan-content" id="driverScanPage">
+
+      <div class="driver-scan-grid">
+
+        <div class="dashboard-card driver-scan-card">
+          <div class="card-header">
+            <h3 class="card-title">Verify passenger</h3>
+          </div>
+
+          <div class="driver-scan-camera-zone" aria-hidden="true">
+            <span class="driver-scan-camera-icon">📷</span>
+            <p><strong>Camera scan</strong> — planned for the next release</p>
+            <small>Use manual entry below for this prototype.</small>
+          </div>
+
+          <p class="driver-scan-desc">
+            Enter the booking reference from the student's ticket QR code to mark them as boarded on <strong id="driverScanRoute">Yelwa → Gubi Campus</strong>.
+          </p>
+
+          <div class="form-group">
+            <label for="scanRefInput">Booking Reference</label>
+            <div class="input-wrapper">
+              <span class="input-icon">🎫</span>
+              <input type="text" id="scanRefInput" placeholder="e.g. ATB-51491 or #ATB-51491" autocomplete="off"/>
+            </div>
+          </div>
+
+          <div class="form-error hidden" id="scanError">
+            <span>⚠️</span>
+            <span id="scanErrorText">Booking not found.</span>
+          </div>
+
+          <div class="driver-scan-actions">
+            <button type="button" class="btn btn-primary btn-full btn-lg" id="scanVerifyBtn" onclick="verifyPassengerQR()" disabled>
+              Verify &amp; Board
+            </button>
+            <a href="driver-manifest.html" class="btn btn-outline btn-full">View passenger manifest</a>
+          </div>
+        </div>
+
+        <div class="dashboard-card driver-scan-help-card">
+          <h3 class="card-title">How it works</h3>
+          <ol class="driver-scan-steps">
+            <li>Ask the student to open their ticket on the app.</li>
+            <li>Read the reference under the QR code (e.g. <code>#ATB-51491</code>).</li>
+            <li>Enter it above and tap <strong>Verify &amp; Board</strong>.</li>
+            <li>The manifest and dashboard stats update automatically.</li>
+          </ol>
+          <p class="driver-scan-hint" id="driverScanLockHint" hidden>
+            Boarding verification is closed while the bus is full or the trip has ended.
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

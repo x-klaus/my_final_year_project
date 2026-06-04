@@ -5,6 +5,10 @@ if (document.getElementById('registerNextBtn')) {
   toggleRegisterNextBtn();
 }
 
+if (document.getElementById('adminLoginForm')) {
+  initAdminLoginForm();
+}
+
 if (document.getElementById('bookingsList')) {
   setCurrentDate();
   setGreeting();
@@ -20,6 +24,10 @@ if (document.getElementById('studentBookingHistoryPage')) {
   initStudentHistorySync();
 }
 
+if (document.getElementById('studentWalletPage')) {
+  initStudentWalletPage();
+}
+
 if (document.getElementById('step1')) {
   setCurrentDate();
   updateWalletDisplay();
@@ -33,11 +41,13 @@ if (document.getElementById('step1')) {
   if (hasActiveBooking === 'true') {
     const savedTicket = localStorage.getItem('activeTicket');
     if (savedTicket) {
-      const ticket = JSON.parse(savedTicket);
-      renderTicketScreen(ticket);
-      refreshTicketBoardingUI(ticket);
-      initTicketCrossTabSync();
-      goToStep(5);
+      try {
+        const ticket = JSON.parse(savedTicket);
+        renderTicketScreen(ticket);
+        refreshTicketBoardingUI(ticket);
+        initTicketCrossTabSync();
+        goToStep(5);
+      } catch (e) { /* ignore corrupt ticket */ }
     }
   } else if (sessionStorage.getItem('trackingBookBus')) {
     applyTrackingBusPrefill();
@@ -54,6 +64,10 @@ if (document.getElementById('driverManifest')) {
 
 if (document.getElementById('driverTripsPage')) {
   initDriverTripsPage();
+}
+
+if (document.getElementById('driverScanPage')) {
+  initDriverScanPage();
 }
 
 if (document.getElementById('adminDashboard')) {

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ATBU Smart Transport | My Wallet</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body class="dashboard-page" data-auth-role="student">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="nav-logo-icon">🚌</div>
+      <div>
+        <div class="nav-logo-text">ATBU Transport</div>
+        <div class="nav-logo-sub">Student Portal</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <ul>
+        <li>
+          <a href="student-dashboard.html" class="sidebar-link">
+            <span class="sidebar-icon">🏠</span>
+            <span>Dashboard</span>
+          </a>
+        </li>
+        <li>
+          <a href="tracking.html" class="sidebar-link">
+            <span class="sidebar-icon">📍</span>
+            <span>Track Bus</span>
+          </a>
+        </li>
+        <li>
+          <a href="booking.html" class="sidebar-link">
+            <span class="sidebar-icon">🎫</span>
+            <span>Book a Seat</span>
+          </a>
+        </li>
+        <li>
+          <a href="student-wallet.html" class="sidebar-link active">
+            <span class="sidebar-icon">💰</span>
+            <span>My Wallet</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="sidebar-link" onclick="openPlannedFeature('Collective Bus Request')">
+            <span class="sidebar-icon">🗳️</span>
+            <span>Request a Bus</span>
+          </a>
+        </li>
+        <li>
+          <a href="student-booking-history.html" class="sidebar-link">
+            <span class="sidebar-icon">📋</span>
+            <span>Booking History</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="sidebar-link" onclick="openPlannedFeature('Settings')">
+            <span class="sidebar-icon">⚙️</span>
+            <span>Settings</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="login.html" class="sidebar-logout" onclick="handleLogout(event)">
+        <span>🚪</span>
+        <span>Log Out</span>
+      </a>
+    </div>
+  </aside>
+
+  <main class="dashboard-main">
+    <header class="topbar">
+      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+      <div class="topbar-left">
+        <h1 class="topbar-title">My Wallet</h1>
+        <span class="topbar-date" id="currentDate"></span>
+      </div>
+      <div class="topbar-right">
+        <button class="topbar-btn" onclick="toggleNotifications()" title="Notifications">
+          🔔
+          <span class="notif-dot" id="notifDot"></span>
+        </button>
+        <div class="topbar-user" onclick="toggleUserMenu()">
+          <div class="user-avatar" id="userAvatar">AU</div>
+          <div class="user-info">
+            <span class="user-name" id="userName">Audu Wahab</span>
+            <span class="user-role">Student</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="student-mobile-back-bar student-mobile-back-bar--sticky">
+      <a href="student-dashboard.html" class="back-circle-btn" aria-label="Back to dashboard" title="Back to dashboard">←</a>
+    </div>
+
+    <div class="dashboard-content student-wallet-content" id="studentWalletPage">
+
+      <div class="student-wallet-layout">
+
+      <div class="wallet-card wallet-card--page">
+        <div class="wallet-header">
+          <div>
+            <span class="wallet-label">My Wallet Balance</span>
+            <button type="button" class="wallet-toggle visibility-toggle--visible" id="walletBalanceToggle" onclick="toggleWalletBalance()" aria-label="Hide balance" title="Hide balance">
+              <svg class="password-toggle-icon password-toggle-icon--show" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+              <svg class="password-toggle-icon password-toggle-icon--hide" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                <line x1="1" y1="1" x2="23" y2="23"/>
+              </svg>
+            </button>
+          </div>
+          <span class="wallet-icon wallet-icon-naira" aria-hidden="true">₦</span>
+        </div>
+        <div class="wallet-balance" id="walletBalance">₦2,500.<span class="wallet-kobo">00</span></div>
+        <div class="wallet-balance hidden" id="walletHidden">₦ ****</div>
+        <div class="wallet-recent">
+          <span class="wallet-recent-label">Last activity</span>
+          <span class="wallet-recent-value" id="walletRecentValue">No bus bookings today</span>
+        </div>
+      </div>
+
+      <div class="dashboard-card" id="walletTopUpSection">
+        <div class="card-header">
+          <h3 class="card-title">Top Up Wallet</h3>
+        </div>
+        <div class="card-body-padding">
+          <p class="modal-desc" style="margin-bottom: 16px;">Select an amount or enter a custom amount to add to your wallet.</p>
+          <div class="amount-grid">
+            <button type="button" class="amount-btn" onclick="selectAmount(500)">₦500</button>
+            <button type="button" class="amount-btn" onclick="selectAmount(1000)">₦1,000</button>
+            <button type="button" class="amount-btn" onclick="selectAmount(2000)">₦2,000</button>
+            <button type="button" class="amount-btn" onclick="selectAmount(5000)">₦5,000</button>
+          </div>
+          <div class="form-group" style="margin-top: 16px;">
+            <label for="customAmount">Or enter custom amount (₦)</label>
+            <div class="input-wrapper">
+              <span class="input-icon">₦</span>
+              <input type="number" id="customAmount" placeholder="e.g. 3000" min="100" oninput="onCustomAmount()"/>
+            </div>
+          </div>
+          <div class="selected-amount" id="selectedAmountDisplay">
+            Amount to add: <strong id="selectedAmountText">₦0</strong>
+          </div>
+          <div class="form-group" style="margin-top: 16px;">
+            <label>Payment Method</label>
+            <div class="payment-methods">
+              <label class="payment-option">
+                <input type="radio" name="payMethod" value="paystack" checked/>
+                <span>💳 Paystack</span>
+              </label>
+              <label class="payment-option">
+                <input type="radio" name="payMethod" value="flutterwave"/>
+                <span>🦋 Flutterwave</span>
+              </label>
+            </div>
+          </div>
+          <button type="button" class="btn btn-primary btn-full" id="topUpPayBtn" onclick="processTopUp()" disabled style="margin-top: 20px;">
+            Proceed to Pay
+          </button>
+        </div>
+      </div>
+
+      <div class="dashboard-card" id="walletHistorySection">
+        <div class="card-header">
+          <h3 class="card-title">Wallet Activity</h3>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Description</th>
+                <th>Ref</th>
+                <th>Amount</th>
+                <th>Type</th>
+              </tr>
+            </thead>
+            <tbody id="walletHistoryBody"></tbody>
+          </table>
+        </div>
+        <div class="empty-state hidden" id="walletHistoryEmpty">
+          <span class="empty-icon">💳</span>
+          <p>No wallet activity yet. Top up or book a seat to see transactions here.</p>
+        </div>
+      </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

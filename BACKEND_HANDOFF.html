@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <title>ATBU Smart Transport - Backend Handoff</title>
+  <style>
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 0 24px 48px;
+      color: #1a1a1a;
+      line-height: 1.55;
+      font-size: 11pt;
+    }
+    h1 { color: #0B2545; border-bottom: 2px solid #2176FF; padding-bottom: 8px; font-size: 22pt; }
+    h2 { color: #0B2545; margin-top: 28px; font-size: 14pt; page-break-after: avoid; }
+    h3 { color: #1B4F8A; font-size: 12pt; page-break-after: avoid; }
+    table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 10pt; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; vertical-align: top; }
+    th { background: #E8F1FF; }
+    code { background: #f4f4f4; padding: 2px 6px; border-radius: 4px; font-size: 9pt; }
+    pre { background: #f4f4f4; padding: 12px; overflow-x: auto; font-size: 9pt; border-radius: 6px; white-space: pre-wrap; }
+    ul, ol { margin: 8px 0; padding-left: 24px; }
+    @media print {
+      body { margin: 16px; max-width: none; }
+    }
+  </style>
+</head>
+<body>
+  <h1>ATBU Smart Transport System — Backend Handoff Guide</h1>
+<p><strong>Project:</strong> Final-year frontend prototype<br />
+<strong>Stack:</strong> Static HTML + CSS + vanilla JavaScript (no build step)<br />
+<strong>Entry script:</strong> <code>js/app.js</code> (loads all modules in order)<br />
+<strong>Demo persistence:</strong> <code>localStorage</code> / <code>sessionStorage</code> (replace with REST API + DB)</p>
+<hr />
+<h2>1. Purpose of this document</h2>
+<p>This guide helps the backend engineer integrate APIs without redesigning the UI. The frontend is <strong>complete for demonstration</strong>; all business logic that should live on the server is currently simulated in the browser.</p>
+<p><strong>Verdict:</strong> UI is ready for handoff. Backend must implement authentication, persistence, payments, real-time fleet data, and QR verification.</p>
+<hr />
+<h2>2. How to run the prototype</h2>
+<ol>
+<li>Open the project folder in VS Code (or any static server).</li>
+<li>Use <strong>Live Server</strong> or similar: serve from project root (e.g. <code>http://127.0.0.1:5501/</code>).</li>
+<li>Start pages:</li>
+<li>Public: <code>index.html</code></li>
+<li>Student/Driver login: <code>login.html</code></li>
+<li>Admin login: <code>admin-login.html</code> (not linked from public site)</li>
+</ol>
+<p><strong>Script load order</strong> (via <code>js/app.js</code>):</p>
+<pre><code>js/core/utils.js → auth.js → public.js → auth/login.js → auth/register.js
+→ student/dashboard.js → student/tracking.js → student/booking.js
+→ driver/driver.js → admin/admin.js → core/bootstrap.js
+</code></pre>
+<hr />
+<h2>3. User roles and pages</h2>
+<h3>3.1 Student (<code>data-auth-role="student"</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>Page</th>
+<th>File</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dashboard</td>
+<td><code>student-dashboard.html</code></td>
+<td>Wallet summary, upcoming booking, quick actions (top-up modal)</td>
+</tr>
+<tr>
+<td>My Wallet</td>
+<td><code>student-wallet.html</code></td>
+<td>Balance, inline top-up, wallet activity ledger (credits/debits)</td>
+</tr>
+<tr>
+<td>Book a Seat</td>
+<td><code>booking.html</code></td>
+<td>Multi-step booking + ticket/QR</td>
+</tr>
+<tr>
+<td>Track Bus</td>
+<td><code>tracking.html</code></td>
+<td>Leaflet map, bus list, filters</td>
+</tr>
+<tr>
+<td>Booking History</td>
+<td><code>student-booking-history.html</code></td>
+<td>Full history table</td>
+</tr>
+<tr>
+<td>Login</td>
+<td><code>login.html</code></td>
+<td>Student/Driver tabs (student flow)</td>
+</tr>
+<tr>
+<td>Register</td>
+<td><code>register.html</code></td>
+<td>Student/Driver registration</td>
+</tr>
+</tbody>
+</table>
+<h3>3.2 Driver (<code>data-auth-role="driver"</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>Page</th>
+<th>File</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dashboard</td>
+<td><code>driver-dashboard.html</code></td>
+<td>Trip status, GPS toggle, stats</td>
+</tr>
+<tr>
+<td>Trips Today</td>
+<td><code>driver-trips.html</code></td>
+<td>Completed trips log</td>
+</tr>
+<tr>
+<td>Passengers</td>
+<td><code>driver-manifest.html</code></td>
+<td>Manifest filters (All/Pending/Boarded)</td>
+</tr>
+<tr>
+<td>Scan QR</td>
+<td><code>driver-scan.html</code></td>
+<td>Manual ref entry (camera planned)</td>
+</tr>
+<tr>
+<td>Live Map</td>
+<td><code>driver-map.html</code></td>
+<td>Driver route map (Leaflet)</td>
+</tr>
+<tr>
+<td>Login</td>
+<td><code>login.html</code></td>
+<td>Driver tab</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Demo driver:</strong> Abdullahi Danladi — <strong>BUS-002</strong> only (<code>js/driver/driver.js</code> → <code>DRIVER_PROFILE</code>).</p>
+<h3>3.3 Admin (<code>data-auth-role="admin"</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>Page</th>
+<th>File</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dashboard</td>
+<td><code>admin-dashboard.html</code></td>
+<td>Stats overview</td>
+</tr>
+<tr>
+<td>Live Bus Status</td>
+<td><code>admin-live-buses.html</code></td>
+<td>Fleet table</td>
+</tr>
+<tr>
+<td>Bus Requests</td>
+<td><code>admin-bus-requests.html</code></td>
+<td>Stub — collective requests</td>
+</tr>
+<tr>
+<td>Bookings</td>
+<td><code>admin-bookings.html</code></td>
+<td>Bookings table + filters</td>
+</tr>
+<tr>
+<td>Quick Actions</td>
+<td><code>admin-actions.html</code></td>
+<td>Fleet ops (some stubs)</td>
+</tr>
+<tr>
+<td>Login</td>
+<td><code>admin-login.html</code></td>
+<td>Sign-in only (no public registration)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>4. Authentication (replace first)</h2>
+<h3>4.1 Current behaviour (prototype)</h3>
+<ul>
+<li>Session stored in <strong><code>sessionStorage</code></strong> key <code>atbuAuthSession</code>.</li>
+<li>Shape: <code>{ role, name, email, reg, loggedInAt }</code>.</li>
+<li><strong>No password verification</strong> — any valid-looking input logs the user in after a short delay.</li>
+<li>Guards: <code>requireAuth()</code> in <code>js/core/auth.js</code> reads <code>data-auth-role</code> on <code>&lt;body&gt;</code> and redirects if missing/wrong role.</li>
+</ul>
+<h3>4.2 Suggested API contract</h3>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Suggested endpoint</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Student login</td>
+<td><code>POST /api/auth/login</code></td>
+<td>body: identifier + password</td>
+</tr>
+<tr>
+<td>Driver login</td>
+<td><code>POST /api/auth/driver/login</code></td>
+<td>or same endpoint with <code>role</code></td>
+</tr>
+<tr>
+<td>Admin login</td>
+<td><code>POST /api/auth/admin/login</code></td>
+<td>separate; accounts provisioned by IT</td>
+</tr>
+<tr>
+<td>Register student</td>
+<td><code>POST /api/auth/register/student</code></td>
+<td></td>
+</tr>
+<tr>
+<td>Register driver</td>
+<td><code>POST /api/auth/register/driver</code></td>
+<td></td>
+</tr>
+<tr>
+<td>Logout</td>
+<td><code>POST /api/auth/logout</code></td>
+<td>clear cookie/token</td>
+</tr>
+<tr>
+<td>Session</td>
+<td><code>GET /api/auth/me</code></td>
+<td>return profile for guards</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Frontend changes:</strong> Replace <code>getAuthSession</code> / <code>setAuthSession</code> in <code>js/core/auth.js</code> with token/cookie handling; keep the same redirect URLs (<code>getDashboardUrlForRole</code>, <code>getLoginUrlForRole</code>).</p>
+<h3>4.3 Admin accounts</h3>
+<ul>
+<li><strong>No self-registration</strong> in the UI. Admins use <code>admin-login.html</code> only.</li>
+<li>Backend should provision admin users; share the admin URL out-of-band.</li>
+</ul>
+<hr />
+<h2>5. Storage keys → API mapping</h2>
+<h3>5.1 Session</h3>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Storage</th>
+<th>Replace with</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>atbuAuthSession</code></td>
+<td>sessionStorage</td>
+<td>JWT / session cookie</td>
+</tr>
+</tbody>
+</table>
+<h3>5.2 Student</h3>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Storage</th>
+<th>Purpose</th>
+<th>Suggested API</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>walletBalance</code></td>
+<td>localStorage</td>
+<td>Wallet balance (default ₦2,500 demo)</td>
+<td><code>GET/PATCH /api/students/me/wallet</code></td>
+</tr>
+<tr>
+<td><code>walletTransactions</code></td>
+<td>localStorage</td>
+<td>Array of wallet ledger entries (top-ups, booking debits, refunds)</td>
+<td><code>GET /api/students/me/wallet/transactions</code></td>
+</tr>
+<tr>
+<td><code>bookingHistory</code></td>
+<td>localStorage</td>
+<td>Array of past bookings</td>
+<td><code>GET /api/students/me/bookings</code></td>
+</tr>
+<tr>
+<td><code>hasActiveBooking</code></td>
+<td>localStorage</td>
+<td><code>"true"</code> if active ticket</td>
+<td><code>GET /api/students/me/bookings/active</code></td>
+</tr>
+<tr>
+<td><code>activeTicket</code></td>
+<td>localStorage</td>
+<td>JSON ticket (see §6)</td>
+<td>same</td>
+</tr>
+<tr>
+<td><code>boardingExpiryTime</code></td>
+<td>localStorage</td>
+<td>Unix ms expiry for 15-min board window</td>
+<td>server-side TTL on booking</td>
+</tr>
+<tr>
+<td><code>studentProfile</code></td>
+<td>localStorage</td>
+<td><code>{ name, reg }</code></td>
+<td><code>GET /api/students/me</code></td>
+</tr>
+<tr>
+<td><code>trackingBookBus</code></td>
+<td>sessionStorage</td>
+<td>Prefill booking from map (<code>busId</code>)</td>
+<td>query param / session</td>
+</tr>
+<tr>
+<td><code>trackingBusRequest</code></td>
+<td>localStorage</td>
+<td>Collective request demo state</td>
+<td>future API</td>
+</tr>
+<tr>
+<td><code>activeBookingToastShown</code></td>
+<td>sessionStorage</td>
+<td>UI flag</td>
+<td>remove when using server state</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Constants:</strong> <code>BOOKING_FARE = 600</code>, <code>DEFAULT_WALLET_BALANCE = 2500</code> (NGN) in <code>js/student/dashboard.js</code>.</p>
+<p><strong>Wallet ledger:</strong> <code>recordWalletTopUp()</code>, <code>recordWalletBookingDebit()</code>, <code>recordWalletRefund()</code> append to <code>walletTransactions</code>. On first load, if the ledger is empty but <code>bookingHistory</code> exists, <code>syncWalletTransactionsFromBookingHistory()</code> backfills once (prototype migration).</p>
+<h3>5.3 Driver</h3>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Storage</th>
+<th>Purpose</th>
+<th>Suggested API</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>driverTripState</code></td>
+<td>localStorage</td>
+<td><code>{ status: idle\|stopped\|moving, gpsConnected }</code></td>
+<td><code>GET/PATCH /api/driver/trip</code></td>
+</tr>
+<tr>
+<td><code>driverBoardedRefs</code></td>
+<td>localStorage</td>
+<td>Array of normalized booking refs boarded</td>
+<td><code>POST /api/driver/boardings/verify</code></td>
+</tr>
+<tr>
+<td><code>driverTripsToday</code></td>
+<td>sessionStorage</td>
+<td>Trip count today</td>
+<td><code>GET /api/driver/trips/today</code></td>
+</tr>
+<tr>
+<td><code>driverTripsLog</code></td>
+<td>sessionStorage</td>
+<td>Completed trips array</td>
+<td><code>GET /api/driver/trips/log</code></td>
+</tr>
+<tr>
+<td><code>driverEarningsToday</code></td>
+<td>sessionStorage</td>
+<td>Earnings number</td>
+<td><code>GET /api/driver/earnings/today</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Note:</strong> <code>DRIVER_TRIP_KEY</code> constant is <code>'driverTripState'</code> (same string as storage key).</p>
+<h3>5.4 Shared booking state</h3>
+<p>Active booking uses the same keys for student, driver, and admin views:</p>
+<ul>
+<li><code>hasActiveBooking</code> + <code>activeTicket</code> — driver manifest reads ticket if <code>ticket.bus === 'BUS-002'</code>.</li>
+</ul>
+<hr />
+<h2>6. Data shapes (JSON)</h2>
+<h3>6.1 Active ticket (<code>activeTicket</code>)</h3>
+<pre><code class="language-json">{
+  &quot;ref&quot;: &quot;#ATB-46604&quot;,
+  &quot;route&quot;: &quot;yelwa-gubi&quot;,
+  &quot;routeLabel&quot;: &quot;Yelwa → Gubi Campus&quot;,
+  &quot;bus&quot;: &quot;BUS-002&quot;,
+  &quot;seat&quot;: &quot;3B&quot;,
+  &quot;driver&quot;: &quot;Abdullahi Danladi&quot;,
+  &quot;phone&quot;: &quot;08023456789&quot;,
+  &quot;name&quot;: &quot;Audu Wahab Ayodele&quot;,
+  &quot;reg&quot;: &quot;20/58646U/1&quot;,
+  &quot;fare&quot;: 600,
+  &quot;bookedAt&quot;: &quot;2026-06-03T23:36:00.000Z&quot;
+}
+</code></pre>
+<p>Built in <code>buildTicketPayload()</code> — <code>js/student/booking.js</code>.</p>
+<h3>6.2 Booking history entry</h3>
+<pre><code class="language-json">{
+  &quot;ref&quot;: &quot;#ATB-46604&quot;,
+  &quot;name&quot;: &quot;Audu Wahab Ayodele&quot;,
+  &quot;reg&quot;: &quot;20/58646U/1&quot;,
+  &quot;route&quot;: &quot;Yelwa → Gubi Campus&quot;,
+  &quot;bus&quot;: &quot;BUS-002&quot;,
+  &quot;seat&quot;: &quot;3B&quot;,
+  &quot;date&quot;: &quot;2026-06-03T23:36:00.000Z&quot;,
+  &quot;amount&quot;: 600,
+  &quot;status&quot;: &quot;Completed | Cancelled | Expired&quot;
+}
+</code></pre>
+<h3>6.3 Wallet transaction (<code>walletTransactions[]</code>)</h3>
+<pre><code class="language-json">{
+  &quot;id&quot;: &quot;topup-1717430400000&quot;,
+  &quot;date&quot;: &quot;2026-06-04T10:15:00.000Z&quot;,
+  &quot;description&quot;: &quot;Wallet top up via Paystack&quot;,
+  &quot;ref&quot;: &quot;TOP-K8F2A1&quot;,
+  &quot;amount&quot;: 2000,
+  &quot;type&quot;: &quot;credit | debit&quot;
+}
+</code></pre>
+<p><strong>Prototype sources:</strong> top-up (credit), wallet booking payment (debit), cancel/expired boarding (credit refund). Booking history remains separate; wallet activity is the financial ledger.</p>
+<h3>6.4 Driver trip state</h3>
+<pre><code class="language-json">{
+  &quot;status&quot;: &quot;idle&quot;,
+  &quot;gpsConnected&quot;: true
+}
+</code></pre>
+<p>Statuses: <code>idle</code>, <code>stopped</code> (at stop), <code>moving</code>.</p>
+<h3>6.5 Auth session (current)</h3>
+<pre><code class="language-json">{
+  &quot;role&quot;: &quot;student | driver | admin&quot;,
+  &quot;name&quot;: &quot;Full Name&quot;,
+  &quot;email&quot;: &quot;user@example.com&quot;,
+  &quot;reg&quot;: &quot;20/58646U/1&quot;,
+  &quot;loggedInAt&quot;: 1717430400000
+}
+</code></pre>
+<hr />
+<h2>7. BUS-002 — “Live” demo bus (important)</h2>
+<p>Only <strong>BUS-002</strong> (<code>bus2</code> in <code>busData</code>) is fully wired for cross-tab sync:</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>BUS-002</th>
+<th>Other buses</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Driver portal trip/GPS</td>
+<td>Yes</td>
+<td>Static demo</td>
+</tr>
+<tr>
+<td>Student live departure status</td>
+<td>Yes</td>
+<td>Static message</td>
+</tr>
+<tr>
+<td>Admin “Live” badge on drivers table</td>
+<td>Yes (<code>liveSync: row.id === 'bus2'</code>)</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Map position sync with driver</td>
+<td>Yes</td>
+<td>Simulated animation only</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Files:</strong> <code>js/student/tracking.js</code> (<code>busData</code>), <code>js/driver/driver.js</code> (<code>DRIVER_PROFILE</code>), <code>js/admin/admin.js</code> (<code>getAdminFleetRows</code> overrides for <code>bus2</code>).</p>
+<p>In production, <strong>every assigned bus</strong> should report live GPS/trip/passenger data when the driver app is connected.</p>
+<hr />
+<h2>8. Key user flows (backend must support)</h2>
+<h3>8.1 Student wallet (top-up &amp; activity)</h3>
+<ol>
+<li><code>student-wallet.html</code> — balance card, inline top-up (preset/custom amounts), Paystack/Flutterwave radios (UI only).</li>
+<li>Top-up: <code>processTopUp()</code> → credit balance + <code>recordWalletTopUp()</code> → <code>renderWalletTransactions()</code>.</li>
+<li>Activity table: reads <code>walletTransactions</code> (not booking history). Types: <strong>Credit</strong> / <strong>Debit</strong>.</li>
+<li>Dashboard shortcut: wallet card links to <code>student-wallet.html</code> / <code>#topup</code> / <code>#history</code> (scroll to activity).</li>
+</ol>
+<p><strong>Functions:</strong> <code>initStudentWalletPage()</code>, <code>renderWalletTransactions()</code>, <code>addWalletTransaction()</code>.</p>
+<h3>8.2 Student books a seat</h3>
+<ol>
+<li>Select route → bus → seat → payment (<code>booking.html</code>).</li>
+<li>Wallet path: deduct <code>BOOKING_FARE</code>, <code>recordWalletBookingDebit()</code>, set <code>hasActiveBooking</code> + <code>activeTicket</code>.</li>
+<li>Paystack/Flutterwave buttons are <strong>UI only</strong> — integrate real payment webhooks.</li>
+<li>15-minute boarding timer (<code>boardingExpiryTime</code>) — expire booking + refund if not boarded.</li>
+</ol>
+<p><strong>Functions:</strong> <code>processBookingPayment()</code>, <code>handleBoardingTimerExpired()</code> (refund + <code>recordWalletRefund</code>), <code>executeCancelBooking()</code>, <code>archiveBooking()</code>.</p>
+<h3>8.3 Driver boards passenger</h3>
+<ol>
+<li><code>driver-scan.html</code> or manifest → enter/scan ref.</li>
+<li><code>markPassengerBoarded(ref)</code> → append to <code>driverBoardedRefs</code>.</li>
+<li>Updates stats, manifest, student ticket UI.</li>
+</ol>
+<p><strong>API:</strong> <code>POST /api/driver/verify-boarding</code> with <code>{ ref }</code>.</p>
+<h3>8.4 Driver trip lifecycle</h3>
+<ol>
+<li>Idle → Start trip (moving) → optional At stop (stopped) → End trip.</li>
+<li>End trip may credit earnings and call <code>completeTripForStudents()</code> → moves active booking to history.</li>
+</ol>
+<p><strong>API:</strong> Trip state machine on server; WebSocket optional for admin/student live updates.</p>
+<h3>8.5 Admin views</h3>
+<ul>
+<li>Fleet rows from <code>busData</code> + driver state for BUS-002.</li>
+<li>Bookings table from <code>getAllAdminBookingRows()</code> — merges history + active ticket.</li>
+<li>Listens to <code>storage</code> events today; replace with <strong>polling or WebSocket</strong>.</li>
+</ul>
+<hr />
+<h2>9. External libraries</h2>
+<table>
+<thead>
+<tr>
+<th>Library</th>
+<th>Used on</th>
+<th>CDN</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Leaflet 1.9.4</td>
+<td><code>tracking.html</code>, <code>driver-map.html</code></td>
+<td>unpkg</td>
+</tr>
+<tr>
+<td>QRCode.js</td>
+<td><code>booking.html</code></td>
+<td>cdnjs</td>
+</tr>
+</tbody>
+</table>
+<p>Maps use static campus coordinates in <code>tracking.js</code> (<code>YELWA_CAMPUS</code>, <code>GUBI_CAMPUS</code>).</p>
+<hr />
+<h2>10. Planned / stub features (do not implement backend unless requested)</h2>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>UI location</th>
+<th>Behaviour today</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Collective bus request</td>
+<td>Student sidebar, landing</td>
+<td><code>openPlannedFeature()</code> modal</td>
+</tr>
+<tr>
+<td>Settings</td>
+<td>All portals</td>
+<td>Planned modal</td>
+</tr>
+<tr>
+<td>Admin: Add bus / assign driver</td>
+<td><code>admin-actions.html</code></td>
+<td>Planned modal</td>
+</tr>
+<tr>
+<td>Admin: Bus requests workflow</td>
+<td><code>admin-bus-requests.html</code></td>
+<td>Empty state message</td>
+</tr>
+<tr>
+<td>Camera QR scan</td>
+<td><code>driver-scan.html</code></td>
+<td>Placeholder; manual ref only</td>
+</tr>
+<tr>
+<td>Forgot password</td>
+<td><code>forgot-password.html</code></td>
+<td>Static page</td>
+</tr>
+<tr>
+<td>Paystack / Flutterwave</td>
+<td><code>booking.html</code>, <code>student-wallet.html</code></td>
+<td>No real charge; balance updates locally for demo</td>
+</tr>
+<tr>
+<td>Notifications</td>
+<td>Student topbar bell</td>
+<td><code>openPlannedFeature('Notifications')</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>11. JavaScript module map</h2>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Responsibility</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>js/core/auth.js</code></td>
+<td>Session, guards, logout, planned-feature modal</td>
+</tr>
+<tr>
+<td><code>js/core/utils.js</code></td>
+<td><code>formatNaira</code>, <code>getDriverInitials</code>, <code>normalizeBookingRef</code>, toggles</td>
+</tr>
+<tr>
+<td><code>js/core/bootstrap.js</code></td>
+<td>Page init after all scripts load</td>
+</tr>
+<tr>
+<td><code>js/auth/login.js</code></td>
+<td>Login + admin login forms</td>
+</tr>
+<tr>
+<td><code>js/auth/register.js</code></td>
+<td>Registration wizard</td>
+</tr>
+<tr>
+<td><code>js/student/dashboard.js</code></td>
+<td>Wallet balance, ledger, top-up, booking history tables, dashboard sync, toasts</td>
+</tr>
+<tr>
+<td><code>js/student/tracking.js</code></td>
+<td>Map, <code>busData</code>, tracking request</td>
+</tr>
+<tr>
+<td><code>js/student/booking.js</code></td>
+<td>Booking steps, ticket, QR, boarding timer</td>
+</tr>
+<tr>
+<td><code>js/driver/driver.js</code></td>
+<td>Trip, manifest, scan, map, earnings</td>
+</tr>
+<tr>
+<td><code>js/admin/admin.js</code></td>
+<td>Admin tables, filters, live sync listener</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>12. Smoke-test checklist (end-to-end demo)</h2>
+<p>Use <strong>BUS-002</strong> for full sync.</p>
+<ul>
+<li>[ ] Student: login → book seat → pay with wallet → see ticket on <code>booking.html</code></li>
+<li>[ ] Student: wallet debit appears on <code>student-wallet.html</code> activity; balance updates</li>
+<li>[ ] Student: top-up on wallet page → credit row in activity; balance increases</li>
+<li>[ ] Student: cancel booking or let boarding expire → refund credit in wallet activity</li>
+<li>[ ] Student: dashboard shows upcoming booking; Track Bus shows BUS-002</li>
+<li>[ ] Driver: login → dashboard shows 1 booked passenger</li>
+<li>[ ] Driver: <code>driver-scan.html</code> → enter ref (or <code>?ref=</code> from manifest) → passenger boarded</li>
+<li>[ ] Driver: Start trip → student sees trip status update (BUS-002)</li>
+<li>[ ] Driver: End trip → booking moves to history; wallet/stats update</li>
+<li>[ ] Admin: login via <code>admin-login.html</code> → Live buses / bookings reflect changes</li>
+<li>[ ] Admin: View All Drivers → only BUS-002 shows <strong>Live</strong> badge</li>
+<li>[ ] Logout from each role returns to correct login page</li>
+</ul>
+<hr />
+<h2>13. Recommended integration order</h2>
+<ol>
+<li>Auth (student, driver, admin) + protect routes  </li>
+<li>Student profile + wallet balance + transaction ledger + create/cancel booking  </li>
+<li>Driver trip state + boarding verification  </li>
+<li>Admin fleet + bookings read APIs  </li>
+<li>Payments (Paystack/Flutterwave)  </li>
+<li>Real-time (WebSocket/SSE) for map and admin  </li>
+<li>Collective bus requests + admin fleet management (if in scope)</li>
+</ol>
+<hr />
+<h2>14. Contact / frontend notes</h2>
+<ul>
+<li><strong>No npm build</strong> — drop-in API client functions can live in <code>js/core/api.js</code> (suggested).</li>
+<li><strong>CORS:</strong> Frontend expects to be served from same origin as API or configured CORS.</li>
+<li><strong><code>js/main.js</code>:</strong> Deprecated shim; all pages use <code>js/app.js</code>.</li>
+<li>Page init <strong>must</strong> run from <code>bootstrap.js</code> after all modules load (cross-file dependencies). Page hooks use element IDs (e.g. <code>studentWalletPage</code>, <code>driverScanPage</code>).</li>
+<li><code>student-wallet.html</code> layout: CSS grid — desktop balance + activity top row; top-up card left column only; mobile stacks balance → top-up → activity.</li>
+<li>Clear booking history (student history page) also clears <code>walletTransactions</code> in the prototype.</li>
+</ul>
+<hr />
+<p><em>Backend handoff — ATBU Smart Transport System frontend prototype (updated for wallet page, driver scan page, and wallet ledger).</em></p>
+</body>
+</html>

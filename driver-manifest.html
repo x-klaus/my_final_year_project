@@ -38,7 +38,7 @@
           </a>
         </li>
         <li>
-          <a href="#" class="sidebar-link" data-driver-scan onclick="openDriverScanModal()">
+          <a href="driver-scan.html" class="sidebar-link">
             <span class="sidebar-icon">📱</span>
             <span>Scan QR</span>
           </a>
@@ -114,9 +114,9 @@
         <button class="map-btn active" onclick="filterManifest('all', this)">All</button>
         <button class="map-btn" onclick="filterManifest('pending', this)" id="pending">Pending</button>
         <button class="map-btn" onclick="filterManifest('boarded', this)">Boarded</button>
-        <button type="button" class="btn btn-primary btn-sm" id="manifestScanBtn" data-driver-scan style="margin-left: auto;" onclick="openDriverScanModal()">
+        <a href="driver-scan.html" class="btn btn-primary btn-sm" id="manifestScanBtn" style="margin-left: auto;">
           📱 Scan QR
-        </button>
+        </a>
       </div>
 
       <div class="dashboard-card">
@@ -149,44 +149,6 @@
 
     </div>
   </main>
-
-  <!-- QR SCAN MODAL -->
-  <div class="modal-overlay hidden" id="driverScanOverlay" onclick="closeDriverScanModal()">
-    <div class="modal" onclick="event.stopPropagation()">
-      <div class="modal-header">
-        <h3>📱 Scan Boarding QR</h3>
-        <button class="modal-close" onclick="closeDriverScanModal()">✕</button>
-      </div>
-      <div class="modal-body">
-        <p class="modal-desc">
-          Enter the booking reference from the student's QR code to verify and mark them as boarded.
-        </p>
-        <div class="form-group">
-          <label for="scanRefInput">Booking Reference</label>
-          <div class="input-wrapper">
-            <span class="input-icon">🎫</span>
-            <input type="text" id="scanRefInput" placeholder="e.g. #ATB-51491" autocomplete="off"/>
-          </div>
-        </div>
-        <div class="form-error hidden" id="scanError">
-          <span>⚠️</span>
-          <span id="scanErrorText">Booking not found.</span>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-outline" onclick="closeDriverScanModal()">Cancel</button>
-        <button class="btn btn-primary" id="scanVerifyBtn" onclick="verifyPassengerQR()" disabled>Verify &amp; Board</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="notif-panel hidden" id="notifPanel">
-    <div class="notif-panel-header">
-      <h3>Notifications</h3>
-      <button onclick="toggleNotifications()">✕</button>
-    </div>
-    <div class="notif-list"></div>
-  </div>
 
   <script src="js/app.js"></script>
 </body>
