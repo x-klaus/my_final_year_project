@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ATBU Smart Transport | Register</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+
+  <!-- Main stylesheet - shared styles across all pages -->
+  <link rel="stylesheet" href="css/style.css"/>
+
+</head>
+<body class="auth-page register-page">
+
+  <!-- NAVBAR -->
+  <nav id="navbar">
+    <a href="index.html" class="nav-logo">
+      <div class="nav-logo-icon">🚌</div>
+      <div>
+        <div class="nav-logo-text">ATBU Transport</div>
+        <div class="nav-logo-sub">Smart Campus Mobility</div>
+      </div>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html#features">Features</a></li>
+      <li><a href="index.html#how">How It Works</a></li>
+    </ul>
+    <div class="nav-cta">
+      <a href="login.html" class="btn btn-outline">Log In</a>
+    </div>
+  </nav>
+
+
+  <!-- MAIN REGISTER SECTION -->
+  <main class="auth-main">
+
+    <!-- Left decorative panel - same style as login page -->
+    <div class="auth-left">
+      <div class="auth-left-content">
+        <div class="auth-brand-icon">🚌</div>
+        <h2>Join ATBU Smart Transport</h2>
+        <p>Create your account and start enjoying a stress-free campus commute today.</p>
+
+        <ul class="auth-features">
+          <li>
+            <span class="auth-feature-icon">📍</span>
+            <span>Track buses in real time</span>
+          </li>
+          <li>
+            <span class="auth-feature-icon">💺</span>
+            <span>Book your seat in advance</span>
+          </li>
+          <li>
+            <span class="auth-feature-icon">💳</span>
+            <span>Pay securely online</span>
+          </li>
+          <li>
+            <span class="auth-feature-icon">🗳️</span>
+            <span>Request a bus collectively</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Decorative circles -->
+      <div class="auth-circle auth-circle--1"></div>
+      <div class="auth-circle auth-circle--2"></div>
+    </div>
+
+
+    <!-- Right panel - the registration form -->
+    <div class="auth-right">
+      <div class="auth-form-container">
+
+        <div class="register-step-back-bar hidden" id="registerStepBackBar">
+          <button type="button" class="back-circle-btn" onclick="goRegisterPrevStep()" aria-label="Back to previous step" title="Back">←</button>
+        </div>
+
+        <div class="auth-form-header">
+          <h1>Create Account</h1>
+          <p>Select your role to get started</p>
+        </div>
+
+        <!-- REGISTRATION FORM -->
+        <form class="auth-form" id="registerForm" onsubmit="handleRegister(event)">
+
+          <!-- STEP 1 — Profile details -->
+          <div id="registerStep1">
+
+          <!-- ROLE SELECTOR TABS -->
+          <div class="role-tabs" id="registerRoleTabs">
+            <button type="button" class="role-tab active" id="reg-tab-student" onclick="switchRegRole('student')">
+              🎓 Student
+            </button>
+            <button type="button" class="role-tab" id="reg-tab-driver" onclick="switchRegRole('driver')">
+              🚌 Driver
+            </button>
+          </div>
+
+
+          <!-- STUDENT REGISTRATION FIELDS -->
+          <div class="form-section" id="reg-studentFields">
+
+            <!-- Student ID field with auto-fetch feature -->
+            <div class="form-group">
+              <label for="studentId">Student ID / Registration Number</label>
+              <div class="input-wrapper">
+                <span class="input-icon">🎓</span>
+                <input
+                  type="text"
+                  id="studentId"
+                  name="studentId"
+                  placeholder="e.g. 20/58646U/1"
+                  autocomplete="off"
+                  oninput="onStudentIdInput(); toggleRegisterNextBtn()"
+                />
+                <!-- Status icon shown after ID lookup -->
+                <span class="id-status-icon" id="idStatusIcon"></span>
+              </div>
+              <!-- Status message below the ID field -->
+              <span class="field-hint" id="idHint"></span>
+            </div>
+
+            <!-- Full Name - auto-filled when ID is found, manual otherwise -->
+            <div class="form-group">
+              <div class="label-row">
+                <label for="studentName">Full Name</label>
+                <!-- Badge shows whether name was auto-filled or manual -->
+                <span class="auto-fill-badge hidden" id="autoFillBadge">✅ Auto-filled</span>
+              </div>
+              <div class="input-wrapper">
+                <span class="input-icon">👤</span>
+                <input
+                  type="text"
+                  id="studentName"
+                  name="studentName"
+                  placeholder="Searching by ID first..."
+                  autocomplete="name"
+                  disabled
+                  oninput="toggleRegisterNextBtn()"
+                />
+                <!-- Loading spinner shown while fetching -->
+                <span class="input-spinner hidden" id="nameSpinner">⏳</span>
+              </div>
+            </div>
+
+            <!-- Email -->
+            <div class="form-group">
+              <label for="studentRegEmail">Email Address</label>
+              <div class="input-wrapper">
+                <span class="input-icon">✉️</span>
+                <input
+                  type="email"
+                  id="studentRegEmail"
+                  name="studentRegEmail"
+                  placeholder="you@student.atbu.edu.ng"
+                  autocomplete="email"
+                  oninput="toggleRegisterNextBtn()"
+                />
+              </div>
+            </div>
+
+            <!-- Phone Number -->
+            <div class="form-group">
+              <label for="studentRegPhone">Phone Number</label>
+              <div class="input-wrapper">
+                <span class="input-icon">📱</span>
+                <input
+                type="tel"
+                id="studentRegPhone"
+                name="studentRegPhone"
+                placeholder="e.g. 08012345678"
+                autocomplete="tel"
+                maxlength="11"
+                pattern="[0-9]{11}"
+                oninput="this.value=this.value.replace(/[^0-9]/g,''); toggleRegisterNextBtn()"
+                />
+              </div>
+            </div>
+
+            <!-- Department -->
+            <div class="form-group">
+              <label for="studentDept">Department</label>
+              <div class="input-wrapper">
+                <span class="input-icon">🏛️</span>
+                <input
+                type="text"
+                id="studentDept"
+                name="studentDept"
+                placeholder="e.g. Computer Science"
+                autocomplete="off"
+                oninput="this.value=this.value.replace(/[^a-zA-Z\s]/g,''); toggleRegisterNextBtn()"
+                />
+              </div>
+            </div>
+
+            <!-- Faculty -->
+            <div class="form-group">
+              <label for="studentFaculty">Faculty</label>
+              <div class="input-wrapper">
+                <span class="input-icon">🏫</span>
+                <input
+                type="text"
+                id="studentFaculty"
+                name="studentFaculty"
+                placeholder="e.g. Faculty of Computing"
+                autocomplete="off"
+                oninput="this.value=this.value.replace(/[^a-zA-Z\s]/g,''); toggleRegisterNextBtn()"
+                />
+              </div>
+            </div>
+
+            <!-- Campus - modal picker for Yelwa or Gubi -->
+            <div class="form-group">
+              <label for="studentCampusTrigger">Home Campus</label>
+              <input type="hidden" id="studentCampus" name="studentCampus" value="" />
+              <button type="button" class="campus-picker-trigger" id="studentCampusTrigger" onclick="openCampusPickerModal()" aria-haspopup="dialog" aria-expanded="false">
+                <span class="campus-picker-trigger-icon">📍</span>
+                <span class="campus-picker-value campus-picker-value--placeholder" id="studentCampusLabel">Select your campus</span>
+                <span class="campus-picker-chevron" aria-hidden="true">▾</span>
+              </button>
+            </div>
+
+          </div>
+
+
+          <!-- DRIVER REGISTRATION FIELDS -->
+          <div class="form-section hidden" id="reg-driverFields">
+
+            <!-- Driver Full Name -->
+            <div class="form-group">
+              <label for="driverName">Full Name</label>
+              <div class="input-wrapper">
+                <span class="input-icon">👤</span>
+                <input
+                  type="text"
+                  id="driverName"
+                  name="driverName"
+                  placeholder="Enter your full name"
+                  autocomplete="name"
+                  oninput="toggleRegisterNextBtn()"
+                />
+              </div>
+            </div>
+
+            <!-- Driver Staff ID -->
+            <div class="form-group">
+              <label for="driverStaffId">Staff ID</label>
+              <div class="input-wrapper">
+                <span class="input-icon">🪪</span>
+                <input
+                  type="text"
+                  id="driverStaffId"
+                  name="driverStaffId"
+                  placeholder="e.g. DRV/2024/001"
+                  autocomplete="off"
+                  oninput="toggleRegisterNextBtn()"
+                />
+              </div>
+            </div>
+
+            <!-- Driver Email -->
+            <div class="form-group">
+              <label for="driverRegEmail">Email Address</label>
+              <div class="input-wrapper">
+                <span class="input-icon">✉️</span>
+                <input
+                  type="email"
+                  id="driverRegEmail"
+                  name="driverRegEmail"
+                  placeholder="you@atbu.edu.ng"
+                  autocomplete="email"
+                  oninput="toggleRegisterNextBtn()"
+                />
+              </div>
+            </div>
+
+            <!-- Driver Phone -->
+            <div class="form-group">
+              <label for="driverRegPhone">Phone Number</label>
+              <div class="input-wrapper">
+                <span class="input-icon">📱</span>
+                <input
+                type="tel"
+                id="driverRegPhone"
+                name="driverRegPhone"
+                placeholder="e.g. 08012345678"
+                autocomplete="tel"
+                maxlength="11"
+                pattern="[0-9]{11}"
+                oninput="this.value=this.value.replace(/[^0-9]/g,''); toggleRegisterNextBtn()"
+                />
+              </div>
+            </div>
+
+            <!-- Assigned Bus -->
+            <div class="form-group">
+              <label for="driverBus">Assigned Bus</label>
+              <div class="input-wrapper">
+                <span class="input-icon">🚌</span>
+                <input
+                  type="text"
+                  id="driverBus"
+                  name="driverBus"
+                  placeholder="e.g. BUS-001"
+                  autocomplete="off"
+                />
+              </div>
+            </div>
+
+            <!-- Licence Number -->
+            <div class="form-group">
+              <label for="driverLicence">Driver's Licence Number</label>
+              <div class="input-wrapper">
+                <span class="input-icon">📋</span>
+                <input
+                  type="text"
+                  id="driverLicence"
+                  name="driverLicence"
+                  placeholder="e.g. ABC123456"
+                  autocomplete="off"
+                  oninput="toggleRegisterNextBtn()"
+                />
+              </div>
+            </div>
+
+          </div>
+
+
+          <!-- ADMIN REGISTRATION FIELDS -->
+          <div class="form-section hidden" id="reg-adminFields">
+
+            <!-- Admin Full Name -->
+            <div class="form-group">
+              <label for="adminName">Full Name</label>
+              <div class="input-wrapper">
+                <span class="input-icon">👤</span>
+                <input
+                  type="text"
+                  id="adminName"
+                  name="adminName"
+                  placeholder="Enter your full name"
+                  autocomplete="name"
+                />
+              </div>
+            </div>
+
+            <!-- Admin Staff ID -->
+            <div class="form-group">
+              <label for="adminStaffId">Staff ID</label>
+              <div class="input-wrapper">
+                <span class="input-icon">🪪</span>
+                <input
+                  type="text"
+                  id="adminStaffId"
+                  name="adminStaffId"
+                  placeholder="e.g. STF/2024/010"
+                  autocomplete="off"
+                />
+              </div>
+            </div>
+
+            <!-- Admin Email -->
+            <div class="form-group">
+              <label for="adminRegEmail">Email Address</label>
+              <div class="input-wrapper">
+                <span class="input-icon">✉️</span>
+                <input
+                  type="email"
+                  id="adminRegEmail"
+                  name="adminRegEmail"
+                  placeholder="admin@atbu.edu.ng"
+                  autocomplete="email"
+                />
+              </div>
+            </div>
+
+            <!-- Admin Phone -->
+            <div class="form-group">
+              <label for="adminRegPhone">Phone Number</label>
+              <div class="input-wrapper">
+                <span class="input-icon">📱</span>
+                <input
+                  type="tel"
+                  id="adminRegPhone"
+                  name="adminRegPhone"
+                  placeholder="e.g. 08012345678"
+                  autocomplete="tel"
+                />
+              </div>
+            </div>
+
+            <!-- Admin Department -->
+            <div class="form-group">
+              <label for="adminDept">Department</label>
+              <div class="input-wrapper">
+                <span class="input-icon">🏛️</span>
+                <input
+                  type="text"
+                  id="adminDept"
+                  name="adminDept"
+                  placeholder="e.g. Transport Unit"
+                  autocomplete="off"
+                />
+              </div>
+            </div>
+
+            <!-- Admin Access Code - special code given by university -->
+            <div class="form-group">
+              <label for="adminAccessCode">Admin Access Code</label>
+              <div class="input-wrapper">
+                <span class="input-icon">🔑</span>
+                <input
+                  type="password"
+                  id="adminAccessCode"
+                  name="adminAccessCode"
+                  placeholder="Enter the code provided by the university"
+                  autocomplete="off"
+                />
+              </div>
+              <span class="field-hint">This code is provided by the ATBU Transport Unit.</span>
+            </div>
+
+          </div>
+
+
+          <div class="form-error hidden" id="registerStep1Error">
+            <span>⚠️</span>
+            <span id="registerStep1ErrorText">Please fill in all required fields.</span>
+          </div>
+
+          <div class="register-step-actions">
+            <button type="button" class="btn btn-primary btn-full btn-lg" id="registerNextBtn" onclick="goRegisterNextStep()" disabled style="opacity: 0.5;">
+              Next →
+            </button>
+          </div>
+
+          <p class="auth-switch">
+            Already have an account?
+            <a href="login.html">Log in here →</a>
+          </p>
+
+          </div>
+
+
+          <!-- STEP 2 — Password & confirmation -->
+          <div id="registerStep2" class="hidden">
+
+          <!-- PASSWORD FIELDS - shared by all roles -->
+          <div class="form-group">
+            <label for="regPassword">Password</label>
+            <div class="input-wrapper">
+              <span class="input-icon">🔒</span>
+              <input
+                type="password"
+                id="regPassword"
+                name="regPassword"
+                placeholder="Create a strong password"
+                autocomplete="new-password"
+                oninput="checkPasswordStrength()"
+              />
+              <button type="button" class="password-toggle" id="regPasswordToggle" onclick="toggleRegPassword('regPassword', 'regPasswordToggle')" aria-label="Show password" title="Show password">
+                <svg class="password-toggle-icon password-toggle-icon--show" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+                <svg class="password-toggle-icon password-toggle-icon--hide" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                  <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                  <line x1="1" y1="1" x2="23" y2="23"/>
+                </svg>
+              </button>
+            </div>
+            <!-- Password strength indicator -->
+            <div class="password-strength" id="passwordStrength">
+              <div class="strength-bar">
+                <div class="strength-fill" id="strengthFill"></div>
+              </div>
+              <span class="strength-label" id="strengthLabel"></span>
+            </div>
+          </div>
+
+          <!-- Confirm Password -->
+          <div class="form-group">
+            <label for="regConfirmPassword">Confirm Password</label>
+            <div class="input-wrapper">
+              <span class="input-icon">🔒</span>
+              <input
+                type="password"
+                id="regConfirmPassword"
+                name="regConfirmPassword"
+                placeholder="Re-enter your password"
+                autocomplete="new-password"
+                oninput="checkPasswordMatch()"
+              />
+              <button type="button" class="password-toggle" id="regConfirmPasswordToggle" onclick="toggleRegPassword('regConfirmPassword', 'regConfirmPasswordToggle')" aria-label="Show password" title="Show password">
+                <svg class="password-toggle-icon password-toggle-icon--show" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+                <svg class="password-toggle-icon password-toggle-icon--hide" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                  <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                  <line x1="1" y1="1" x2="23" y2="23"/>
+                </svg>
+              </button>
+            </div>
+            <!-- Match status shown below confirm password -->
+            <span class="field-hint" id="passwordMatchHint"></span>
+          </div>
+
+
+          <!-- Terms and conditions checkbox -->
+          <div class="form-check">
+            <input type="checkbox" id="agreeTerms" name="agreeTerms" onchange="toggleRegisterBtn()"/>
+            <label for="agreeTerms">
+              I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>
+            </label>
+          </div>
+
+
+          <!-- ERROR MESSAGE - shown if validation fails -->
+          <div class="form-error hidden" id="registerError">
+            <span>⚠️</span>
+            <span id="registerErrorText">Please fill in all required fields.</span>
+          </div>
+
+
+          <div class="register-step-actions">
+            <button type="submit" class="btn btn-primary btn-full btn-lg" id="registerBtn" disabled style="opacity: 0.5;">
+              Create Account
+            </button>
+          </div>
+
+
+          <!-- Link to login page -->
+          <p class="auth-switch">
+            Already have an account?
+            <a href="login.html">Log in here →</a>
+          </p>
+
+          </div>
+
+        </form>
+
+      </div>
+    </div>
+
+  </main>
+
+
+  <!-- HOME CAMPUS PICKER MODAL -->
+  <div class="modal-overlay hidden" id="campusPickerOverlay" onclick="closeCampusPickerModal()">
+    <div class="modal campus-picker-modal" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3>📍 Select Home Campus</h3>
+        <button type="button" class="modal-close" onclick="closeCampusPickerModal()" aria-label="Close">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">Choose the campus where you reside. </p>
+        <div class="campus-picker-options">
+          <button type="button" class="campus-picker-option" data-campus="yelwa" onclick="selectStudentCampus('yelwa')">
+            <span class="campus-picker-option-icon">🏫</span>
+            <span class="campus-picker-option-text">
+              <strong>Yelwa Campus</strong>
+              <small>Yelwa → Gubi route boarding point</small>
+            </span>
+          </button>
+          <button type="button" class="campus-picker-option" data-campus="gubi" onclick="selectStudentCampus('gubi')">
+            <span class="campus-picker-option-icon">🎓</span>
+            <span class="campus-picker-option-text">
+              <strong>Gubi Campus</strong>
+              <small>Gubi → Yelwa route boarding point</small>
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- JavaScript files -->
+  <script src="js/app.js"></script>
+
+</body>
+</html>

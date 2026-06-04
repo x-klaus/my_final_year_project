@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ATBU Smart Transport | Passenger Manifest</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body class="dashboard-page" data-auth-role="driver">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="nav-logo-icon">🚌</div>
+      <div>
+        <div class="nav-logo-text">ATBU Transport</div>
+        <div class="nav-logo-sub">Driver Portal</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <ul>
+        <li>
+          <a href="driver-dashboard.html" class="sidebar-link">
+            <span class="sidebar-icon">🏠</span>
+            <span>Dashboard</span>
+          </a>
+        </li>
+        <li>
+          <a href="driver-trips.html" class="sidebar-link">
+            <span class="sidebar-icon">🛣️</span>
+            <span>Trips Today</span>
+          </a>
+        </li>
+        <li>
+          <a href="driver-manifest.html" class="sidebar-link active">
+            <span class="sidebar-icon">👥</span>
+            <span>Passengers</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="sidebar-link" data-driver-scan onclick="openDriverScanModal()">
+            <span class="sidebar-icon">📱</span>
+            <span>Scan QR</span>
+          </a>
+        </li>
+        <li>
+          <a href="driver-map.html" class="sidebar-link">
+            <span class="sidebar-icon">📍</span>
+            <span>Live Map</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="sidebar-link" onclick="openPlannedFeature('Settings')">
+            <span class="sidebar-icon">⚙️</span>
+            <span>Settings</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="login.html" class="sidebar-logout" onclick="handleLogout(event)">
+        <span>🚪</span>
+        <span>Log Out</span>
+      </a>
+    </div>
+  </aside>
+
+  <main class="dashboard-main">
+    <header class="topbar">
+      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+      <div class="topbar-left">
+        <h1 class="topbar-title">Passenger Manifest</h1>
+        <span class="topbar-date" id="currentDate"></span>
+      </div>
+      <div class="topbar-right">
+        <button class="topbar-btn" onclick="toggleNotifications()" title="Notifications">
+          🔔
+          <span class="notif-dot" id="notifDot"></span>
+        </button>
+        <div class="topbar-user">
+          <div class="user-avatar">AD</div>
+          <div class="user-info">
+            <span class="user-name">Abdullahi Danladi</span>
+            <span class="user-role">Driver</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="dashboard-content" id="driverManifest">
+
+      <a href="driver-dashboard.html" class="back-circle-btn" aria-label="Back to dashboard" title="Back to dashboard">←</a>
+
+      <div class="manifest-summary">
+        <div class="manifest-summary-item">
+          <span class="manifest-summary-label">Bus</span>
+          <strong id="manifestBus">BUS-002</strong>
+        </div>
+        <div class="manifest-summary-item">
+          <span class="manifest-summary-label">Route</span>
+          <strong id="manifestRoute">Yelwa → Gubi Campus</strong>
+        </div>
+        <div class="manifest-summary-item">
+          <span class="manifest-summary-label">Trip status</span>
+          <strong id="manifestTripStatus">Idle</strong>
+        </div>
+        <div class="manifest-summary-item">
+          <span class="manifest-summary-label">Seats filled</span>
+          <strong id="manifestSeatsFilled">0 / 18</strong>
+        </div>
+      </div>
+
+      <div class="manifest-filters">
+        <button class="map-btn active" onclick="filterManifest('all', this)">All</button>
+        <button class="map-btn" onclick="filterManifest('pending', this)" id="pending">Pending</button>
+        <button class="map-btn" onclick="filterManifest('boarded', this)">Boarded</button>
+        <button type="button" class="btn btn-primary btn-sm" id="manifestScanBtn" data-driver-scan style="margin-left: auto;" onclick="openDriverScanModal()">
+          📱 Scan QR
+        </button>
+      </div>
+
+      <div class="dashboard-card">
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Passenger</th>
+                <th>Reg No</th>
+                <th>Seat</th>
+                <th>Booking Ref</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="manifestTableBody">
+            </tbody>
+          </table>
+        </div>
+
+        <div class="empty-state hidden" id="manifestEmpty">
+          <span class="empty-icon">👥</span>
+          <p>No passengers match this filter.</p>
+        </div>
+      </div>
+
+      <div class="page-back-bar">
+        <a href="driver-dashboard.html" class="btn btn-outline btn-full">← Back to Dashboard</a>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- QR SCAN MODAL -->
+  <div class="modal-overlay hidden" id="driverScanOverlay" onclick="closeDriverScanModal()">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3>📱 Scan Boarding QR</h3>
+        <button class="modal-close" onclick="closeDriverScanModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">
+          Enter the booking reference from the student's QR code to verify and mark them as boarded.
+        </p>
+        <div class="form-group">
+          <label for="scanRefInput">Booking Reference</label>
+          <div class="input-wrapper">
+            <span class="input-icon">🎫</span>
+            <input type="text" id="scanRefInput" placeholder="e.g. #ATB-51491" autocomplete="off"/>
+          </div>
+        </div>
+        <div class="form-error hidden" id="scanError">
+          <span>⚠️</span>
+          <span id="scanErrorText">Booking not found.</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeDriverScanModal()">Cancel</button>
+        <button class="btn btn-primary" id="scanVerifyBtn" onclick="verifyPassengerQR()" disabled>Verify &amp; Board</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="notif-panel hidden" id="notifPanel">
+    <div class="notif-panel-header">
+      <h3>Notifications</h3>
+      <button onclick="toggleNotifications()">✕</button>
+    </div>
+    <div class="notif-list"></div>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

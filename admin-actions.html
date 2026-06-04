@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ATBU Smart Transport | Quick Actions</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body class="dashboard-page" data-auth-role="admin">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="nav-logo-icon">🚌</div>
+      <div>
+        <div class="nav-logo-text">ATBU Transport</div>
+        <div class="nav-logo-sub">Admin Portal</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <ul>
+        <li><a href="admin-dashboard.html" class="sidebar-link"><span class="sidebar-icon">🏠</span><span>Dashboard</span></a></li>
+        <li><a href="admin-live-buses.html" class="sidebar-link"><span class="sidebar-icon">🚌</span><span>Live Bus Status</span></a></li>
+        <li><a href="admin-bus-requests.html" class="sidebar-link"><span class="sidebar-icon">🗳️</span><span>Bus Requests</span></a></li>
+        <li><a href="admin-bookings.html" class="sidebar-link"><span class="sidebar-icon">🎫</span><span>Bookings</span></a></li>
+        <li><a href="admin-actions.html" class="sidebar-link active"><span class="sidebar-icon">⚡</span><span>Quick Actions</span></a></li>
+      </ul>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="admin-login.html" class="sidebar-logout" onclick="handleLogout(event)"><span>🚪</span><span>Log Out</span></a>
+    </div>
+  </aside>
+
+  <main class="dashboard-main">
+    <header class="topbar">
+      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+      <div class="topbar-left">
+        <h1 class="topbar-title">Quick Actions</h1>
+        <span class="topbar-date" id="currentDate"></span>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-user">
+          <div class="user-avatar admin-avatar" id="adminAvatar">TA</div>
+          <div class="user-info">
+            <span class="user-name" id="adminName">Transport Admin</span>
+            <span class="user-role">Administrator</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="dashboard-content" id="adminActionsPage">
+      <div class="dashboard-card">
+        <div class="card-header">
+          <h3 class="card-title">Fleet Operations</h3>
+        </div>
+        <p class="admin-card-intro">Common admin tasks for managing buses and drivers.</p>
+        <div class="admin-quick-actions">
+          <button type="button" class="btn btn-outline" onclick="openPlannedFeature('Add a New Bus')">
+            ➕ Add a New Bus
+          </button>
+          <button type="button" class="btn btn-outline" onclick="openPlannedFeature('Assign a Driver')">
+            👤 Assign a Driver
+          </button>
+          <button type="button" class="btn btn-outline" onclick="openAdminDriversModal()">
+            🚌 View All Drivers
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div class="modal-overlay hidden" id="adminDriversOverlay" onclick="closeAdminDriversModal()">
+    <div class="modal modal-admin-full" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3>🚌 All Drivers</h3>
+        <button type="button" class="modal-close" onclick="closeAdminDriversModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Driver</th>
+                <th>Phone</th>
+                <th>Assigned Bus</th>
+                <th>Route</th>
+                <th>Bus Status</th>
+                <th>Seats Filled</th>
+              </tr>
+            </thead>
+            <tbody id="adminDriversBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" onclick="closeAdminDriversModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

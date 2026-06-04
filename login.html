@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ATBU Smart Transport | Login</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+
+  <!-- Main stylesheet -->
+  <link rel="stylesheet" href="css/style.css"/>
+
+
+</head>
+<body class="auth-page login-page">
+
+  <!-- NAVBAR -->
+  <nav id="navbar">
+    <a href="index.html" class="nav-logo">
+      <div class="nav-logo-icon">🚌</div>
+      <div>
+        <div class="nav-logo-text">ATBU Transport</div>
+        <div class="nav-logo-sub">Smart Campus Mobility</div>
+      </div>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html#features">Features</a></li>
+      <li><a href="index.html#how">How It Works</a></li>
+    </ul>
+    <div class="nav-cta">
+      <a href="register.html" class="btn btn-primary">Create Account</a>
+    </div>
+  </nav>
+
+
+  <!-- MAIN LOGIN SECTION -->
+  <main class="auth-main">
+
+    <!-- Left side - decorative panel with branding -->
+    <div class="auth-left">
+
+      <div class="auth-left-content">
+        <div class="auth-brand-icon">🚌</div>
+        <h2>Welcome Back to ATBU Transport</h2>
+        <p>Your smarter way to commute between Yelwa and Gubi campus.</p>
+
+        <!-- Feature highlights on the left panel -->
+        <ul class="auth-features">
+          <li>
+            <span class="auth-feature-icon">📍</span>
+            <span>Track buses in real time</span>
+          </li>
+          <li>
+            <span class="auth-feature-icon">💺</span>
+            <span>Book your seat in advance</span>
+          </li>
+          <li>
+            <span class="auth-feature-icon">💳</span>
+            <span>Pay securely online</span>
+          </li>
+          <li>
+            <span class="auth-feature-icon">🗳️</span>
+            <span>Request a bus collectively</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Decorative circles -->
+      <div class="auth-circle auth-circle--1"></div>
+      <div class="auth-circle auth-circle--2"></div>
+
+    </div>
+
+
+    <!-- Right side - the actual login form -->
+    <div class="auth-right">
+
+      <!-- Mobile-only branding (replaces top navbar on small screens) -->
+      <div class="auth-mobile-brand">
+        <div class="auth-mobile-brand-icon">🚌</div>
+        <h2 class="auth-mobile-brand-title">ATBU Transport</h2>
+        <p class="auth-mobile-brand-sub">Smart campus mobility</p>
+      </div>
+
+      <div class="auth-form-container">
+
+        <div class="auth-form-header">
+          <h1>Log In</h1>
+          <p>Select your role and enter your credentials</p>
+        </div>
+
+        <!-- ROLE SELECTOR TABS - Student / Driver -->
+        <div class="role-tabs">
+          <!-- Clicking each tab changes the login form via JavaScript -->
+          <button class="role-tab active" id="tab-student" onclick="switchRole('student')">
+            🎓 Student
+          </button>
+          <button class="role-tab" id="tab-driver" onclick="switchRole('driver')">
+            🚌 Driver
+          </button>
+        </div>
+
+
+        <!-- LOGIN FORM -->
+        <form class="auth-form" id="loginForm" onsubmit="handleLogin(event)">
+
+          <!-- STUDENT LOGIN FIELDS - shown when Student tab is active -->
+          <div class="form-section" id="studentFields">
+
+            <!-- Identifier type switcher - Email / Phone / Reg Number -->
+            <div class="identifier-switcher">
+              <span class="identifier-label">Login with:</span>
+              <div class="identifier-options">
+                <button type="button" class="identifier-btn active" onclick="switchIdentifier('email')">Email</button>
+                <button type="button" class="identifier-btn" onclick="switchIdentifier('phone')">Phone</button>
+                <button type="button" class="identifier-btn" onclick="switchIdentifier('reg')">Reg Number</button>
+              </div>
+            </div>
+
+            <!-- Email input - shown by default for students -->
+            <div class="form-group" id="emailGroup">
+              <label for="studentEmail">Email Address</label>
+              <div class="input-wrapper">
+                <span class="input-icon">✉️</span>
+                <input
+                  type="email"
+                  id="studentEmail"
+                  name="email"
+                  placeholder="you@student.atbu.edu.ng"
+                  autocomplete="email"
+                  oninput="toggleLoginBtn()"
+                />
+              </div>
+            </div>
+
+            <!-- Phone number input - hidden by default, shown when Phone is selected -->
+            <div class="form-group hidden" id="phoneGroup">
+              <label for="studentPhone">Phone Number</label>
+              <div class="input-wrapper">
+                <span class="input-icon">📱</span>
+                <input
+                type="tel"
+                id="studentPhone"
+                name="phone"
+                placeholder="e.g. 08012345678"
+                autocomplete="tel"
+                maxlength="11"
+                pattern="[0-9]{11}"
+                oninput="this.value=this.value.replace(/[^0-9]/g,''); toggleLoginBtn();"
+                />
+              </div>
+            </div>
+
+            <!-- Reg number input - hidden by default, shown when Reg Number is selected -->
+            <div class="form-group hidden" id="regGroup">
+              <label for="studentReg">Registration Number</label>
+              <div class="input-wrapper">
+                <span class="input-icon">🎓</span>
+                <input
+                  type="text"
+                  id="studentReg"
+                  name="reg"
+                  placeholder="e.g. 20/58646U/1"
+                  autocomplete="off"
+                  oninput="toggleLoginBtn()"
+                />
+              </div>
+            </div>
+
+          </div>
+
+
+          <!-- DRIVER LOGIN FIELDS - hidden until Driver tab is clicked -->
+          <div class="form-section hidden" id="driverFields">
+
+            <!-- Driver identifier switcher - Email or Phone -->
+            <div class="identifier-switcher">
+              <span class="identifier-label">Login with:</span>
+              <div class="identifier-options">
+                <button type="button" class="identifier-btn active" onclick="switchDriverIdentifier('email')">Email</button>
+                <button type="button" class="identifier-btn" onclick="switchDriverIdentifier('phone')">Phone</button>
+              </div>
+            </div>
+
+            <!-- Driver email -->
+            <div class="form-group" id="driverEmailGroup">
+              <label for="driverEmail">Email Address</label>
+              <div class="input-wrapper">
+                <span class="input-icon">✉️</span>
+                <input
+                  type="email"
+                  id="driverEmail"
+                  name="driverEmail"
+                  placeholder="you@atbu.edu.ng"
+                  autocomplete="email"
+                  oninput="toggleLoginBtn()"
+                />
+              </div>
+            </div>
+
+            <!-- Driver phone - hidden by default -->
+            <div class="form-group hidden" id="driverPhoneGroup">
+              <label for="driverPhone">Phone Number</label>
+              <div class="input-wrapper">
+                <span class="input-icon">📱</span>
+                <input
+                type="tel"
+                id="driverPhone"
+                name="driverPhone"
+                placeholder="e.g. 08012345678"
+                autocomplete="tel"
+                maxlength="11"
+                pattern="[0-9]{11}"
+                oninput="this.value=this.value.replace(/[^0-9]/g,''); toggleLoginBtn();"
+                />
+              </div>
+            </div>
+
+          </div>
+
+
+          <!-- PASSWORD FIELD - shared by all roles -->
+          <div class="form-group">
+            <div class="label-row">
+              <label for="password">Password</label>
+              <!-- Forgot password link -->
+              <a href="forgot-password.html" class="forgot-link">Forgot password?</a>
+            </div>
+            <div class="input-wrapper">
+              <span class="input-icon">🔒</span>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="Enter your password"
+                autocomplete="current-password"
+                oninput="toggleLoginBtn()"
+                />
+              <!-- Eye icon to show/hide password - toggled by JavaScript -->
+              <button type="button" class="password-toggle" id="loginPasswordToggle" onclick="togglePassword()" aria-label="Show password" title="Show password">
+                <svg class="password-toggle-icon password-toggle-icon--show" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+                <svg class="password-toggle-icon password-toggle-icon--hide" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                  <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                  <line x1="1" y1="1" x2="23" y2="23"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+
+          <!-- ERROR MESSAGE - shown by JavaScript if login fails -->
+          <div class="form-error hidden" id="loginError">
+            <span>⚠️</span>
+            <span id="loginErrorText">Invalid credentials. Please try again.</span>
+          </div>
+
+
+          <!-- SUBMIT BUTTON -->
+          <button type="submit" class="btn btn-primary btn-full btn-lg" id="loginBtn" disabled style="opacity: 0.5;">
+          Log In
+          </button>
+
+
+          <!-- Link to register page -->
+          <p class="auth-switch">
+            Don't have an account?
+            <a href="register.html">Create one here →</a>
+          </p>
+
+        </form>
+
+      </div>
+
+    </div>
+
+  </main>
+
+
+  <!-- JavaScript file -->
+  <script src="js/app.js"></script>
+
+</body>
+</html>

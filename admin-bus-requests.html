@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ATBU Smart Transport | Bus Requests</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body class="dashboard-page" data-auth-role="admin">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="nav-logo-icon">🚌</div>
+      <div>
+        <div class="nav-logo-text">ATBU Transport</div>
+        <div class="nav-logo-sub">Admin Portal</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <ul>
+        <li><a href="admin-dashboard.html" class="sidebar-link"><span class="sidebar-icon">🏠</span><span>Dashboard</span></a></li>
+        <li><a href="admin-live-buses.html" class="sidebar-link"><span class="sidebar-icon">🚌</span><span>Live Bus Status</span></a></li>
+        <li><a href="admin-bus-requests.html" class="sidebar-link active"><span class="sidebar-icon">🗳️</span><span>Bus Requests</span></a></li>
+        <li><a href="admin-bookings.html" class="sidebar-link"><span class="sidebar-icon">🎫</span><span>Bookings</span></a></li>
+        <li><a href="admin-actions.html" class="sidebar-link"><span class="sidebar-icon">⚡</span><span>Quick Actions</span></a></li>
+      </ul>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="admin-login.html" class="sidebar-logout" onclick="handleLogout(event)"><span>🚪</span><span>Log Out</span></a>
+    </div>
+  </aside>
+
+  <main class="dashboard-main">
+    <header class="topbar">
+      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+      <div class="topbar-left">
+        <h1 class="topbar-title">Bus Requests</h1>
+        <span class="topbar-date" id="currentDate"></span>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-user">
+          <div class="user-avatar admin-avatar" id="adminAvatar">TA</div>
+          <div class="user-info">
+            <span class="user-name" id="adminName">Transport Admin</span>
+            <span class="user-role">Administrator</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="dashboard-content" id="adminBusRequestsPage">
+      <div class="dashboard-card">
+        <div class="card-header">
+          <h3 class="card-title">Collective Bus Requests</h3>
+          <span class="feature-badge feature-badge--soon">Next release</span>
+        </div>
+        <p class="admin-card-intro">
+          Approve or reject collective bus requests here once the student request feature ships in the next release.
+        </p>
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Campus</th>
+                <th>Passengers</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="adminBusRequestsBody">
+              <tr>
+                <td colspan="4" style="text-align:center;color:#5A7499;padding:28px 16px;">
+                  No bus requests yet — this workflow is planned for the next release.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

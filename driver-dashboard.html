@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ATBU Smart Transport | Driver Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="css/style.css"/>
+</head>
+<body class="dashboard-page" data-auth-role="driver">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="nav-logo-icon">🚌</div>
+      <div>
+        <div class="nav-logo-text">ATBU Transport</div>
+        <div class="nav-logo-sub">Driver Portal</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <ul>
+        <li>
+          <a href="driver-dashboard.html" class="sidebar-link active">
+            <span class="sidebar-icon">🏠</span>
+            <span>Dashboard</span>
+          </a>
+        </li>
+        <li>
+          <a href="driver-trips.html" class="sidebar-link">
+            <span class="sidebar-icon">🛣️</span>
+            <span>Trips Today</span>
+          </a>
+        </li>
+        <li>
+          <a href="driver-manifest.html" class="sidebar-link">
+            <span class="sidebar-icon">👥</span>
+            <span>Passengers</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="sidebar-link" data-driver-scan onclick="openDriverScanModal()">
+            <span class="sidebar-icon">📱</span>
+            <span>Scan QR</span>
+          </a>
+        </li>
+        <li>
+          <a href="driver-map.html" class="sidebar-link">
+            <span class="sidebar-icon">📍</span>
+            <span>Live Map</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="sidebar-link" onclick="openPlannedFeature('Settings')">
+            <span class="sidebar-icon">⚙️</span>
+            <span>Settings</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="login.html" class="sidebar-logout" onclick="handleLogout(event)">
+        <span>🚪</span>
+        <span>Log Out</span>
+      </a>
+    </div>
+  </aside>
+
+  <main class="dashboard-main">
+    <header class="topbar">
+      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+      <div class="topbar-left">
+        <h1 class="topbar-title">Driver Dashboard</h1>
+        <span class="topbar-date" id="currentDate"></span>
+      </div>
+      <div class="topbar-right">
+        <button class="topbar-btn" onclick="toggleNotifications()" title="Notifications">
+          🔔
+          <span class="notif-dot" id="notifDot"></span>
+        </button>
+        <div class="topbar-user">
+          <div class="user-avatar" id="driverAvatar">AD</div>
+          <div class="user-info">
+            <span class="user-name" id="driverName">Abdullahi Danladi</span>
+            <span class="user-role">Driver</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="dashboard-content" id="driverDashboard">
+
+      <div class="welcome-banner">
+        <div class="welcome-text">
+          <h2>Good morning, <span id="welcomeName">Abdullahi</span> 👋</h2>
+          <p>Manage your assigned route, update trip status, and verify passenger boarding.</p>
+        </div>
+        <span class="campus-badge" id="driverBusBadge">🚌 BUS-002</span>
+      </div>
+
+      <div class="driver-account-card">
+        <div class="driver-account-main">
+          <span class="driver-account-label">Earnings Today</span>
+          <strong class="driver-account-balance" id="driverEarningsToday">₦0.00</strong>
+        </div>
+        <div class="driver-account-today">
+          <span class="driver-account-label">Trips Completed</span>
+          <strong id="driverTripsEarnedCount">0</strong>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-card-icon" style="background: #E8F1FF;">🎫</div>
+          <div class="stat-card-info">
+            <span class="stat-card-num" id="driverStatBooked">0</span>
+            <span class="stat-card-label">Booked Passengers</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon" style="background: #E8F8F0;">✅</div>
+          <div class="stat-card-info">
+            <span class="stat-card-num" id="driverStatBoarded">0</span>
+            <span class="stat-card-label">Boarded</span>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon" style="background: #FFF8E8;">💺</div>
+          <div class="stat-card-info">
+            <span class="stat-card-num" id="driverStatSeatsLeft">18</span>
+            <span class="stat-card-label">Seats Left</span>
+          </div>
+        </div>
+        <a href="driver-trips.html" class="stat-card stat-card--clickable" id="driverTripsStatCard" title="View today's completed trips">
+          <div class="stat-card-icon" style="background: #F0F0FF;">🛣️</div>
+          <div class="stat-card-info">
+            <span class="stat-card-num" id="driverStatTrips">0</span>
+            <span class="stat-card-label">Trips Today</span>
+          </div>
+        </a>
+      </div>
+
+      <div class="mid-grid">
+
+        <!-- TRIP STATUS -->
+        <div class="dashboard-card trip-status-card">
+          <div class="card-header">
+            <h3 class="card-title">Current Trip Status</h3>
+            <span class="trip-status-badge trip-status-badge--idle" id="driverTripBadge">Idle</span>
+          </div>
+
+          <div class="trip-route-info">
+            <div class="trip-route-row">
+              <span>Assigned Bus</span>
+              <strong id="driverAssignedBus">BUS-002</strong>
+            </div>
+            <div class="trip-route-row">
+              <span>Route</span>
+              <strong id="driverAssignedRoute">Yelwa → Gubi Campus</strong>
+            </div>
+            <div class="trip-route-row">
+              <span>Next departure</span>
+              <strong id="driverNextDeparture">When full or scheduled</strong>
+            </div>
+          </div>
+
+          <p class="trip-status-hint" id="driverStatusHint">
+            Set status to <strong>Idle</strong> when waiting at campus. Passengers can book only while idle.
+          </p>
+
+          <div class="status-btn-group">
+            <button type="button" class="status-btn" id="btnStatusIdle" disabled>
+              🅿️ Idle
+            </button>
+            <button type="button" class="status-btn" onclick="toggleDriverStopStatus()" id="btnStatusStopped" disabled>
+              🛑 At Stop
+            </button>
+            <button type="button" class="status-btn" onclick="confirmStartDriverTrip()" id="btnStatusMoving" disabled>
+              🚌 Start Trip
+            </button>
+          </div>
+
+          <button type="button" class="btn btn-outline btn-full btn-end-trip" id="btnEndTrip" style="margin-top: 12px;" onclick="confirmEndDriverTrip()" disabled>
+            End Trip &amp; Reset
+          </button>
+        </div>
+
+        <!-- GPS + QUICK ACTIONS -->
+        <div class="quick-actions-card">
+          <h3 class="card-title">Quick Actions</h3>
+
+          <div class="gps-status-card" id="gpsStatusCard" onclick="toggleDriverGps()" role="button" tabindex="0" aria-label="Toggle GPS device">
+            <div class="gps-status-header">
+              <span class="gps-dot gps-dot--on" id="gpsDot"></span>
+              <div>
+                <strong>GPS Device</strong>
+                <small id="gpsStatusText">Connected — location sharing active</small>
+              </div>
+            </div>
+            <button type="button" class="btn btn-outline btn-sm gps-toggle-btn" id="gpsToggleBtn" onclick="event.stopPropagation(); toggleDriverGps()">
+              Turn Off
+            </button>
+          </div>
+
+          <div class="quick-actions-grid">
+            <a href="driver-manifest.html" class="quick-action">
+              <div class="quick-action-icon">👥</div>
+              <span>Manifest</span>
+            </a>
+            <a href="#" class="quick-action" data-driver-scan onclick="openDriverScanModal()">
+              <div class="quick-action-icon">📱</div>
+              <span>Scan QR</span>
+            </a>
+            <a href="driver-map.html" class="quick-action">
+              <div class="quick-action-icon">📍</div>
+              <span>Live Map</span>
+            </a>
+            <a href="driver-manifest.html#pending" class="quick-action">
+              <div class="quick-action-icon">⏳</div>
+              <span>Pending</span>
+            </a>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RECENT PASSENGERS PREVIEW -->
+      <div class="dashboard-card" style="margin-top: 24px;">
+        <div class="card-header">
+          <h3 class="card-title">Passenger Manifest Preview</h3>
+          <a href="driver-manifest.html" class="card-link">View all →</a>
+        </div>
+        <div class="table-wrapper">
+          <table class="data-table" id="driverPreviewTable">
+            <thead>
+              <tr>
+                <th>Passenger</th>
+                <th>Seat</th>
+                <th>Ref</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="driverPreviewBody">
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- TRIP CONFIRM MODAL -->
+  <div class="modal-overlay hidden" id="driverTripConfirmOverlay" onclick="closeDriverTripConfirmModal()">
+    <div class="modal" id="driverTripConfirmModal" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 id="driverTripConfirmTitle">Confirm</h3>
+        <button type="button" class="modal-close" onclick="closeDriverTripConfirmModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc" id="driverTripConfirmMessage"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeDriverTripConfirmModal()">Cancel</button>
+        <button type="button" class="btn btn-primary" id="driverTripConfirmBtn" onclick="executeDriverTripConfirm()">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- QR SCAN MODAL -->
+  <div class="modal-overlay hidden" id="driverScanOverlay" onclick="closeDriverScanModal()">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3>📱 Scan Boarding QR</h3>
+        <button class="modal-close" onclick="closeDriverScanModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">
+          Enter the booking reference from the student's QR code to verify and mark them as boarded.
+        </p>
+        <div class="form-group">
+          <label for="scanRefInput">Booking Reference</label>
+          <div class="input-wrapper">
+            <span class="input-icon">🎫</span>
+            <input type="text" id="scanRefInput" placeholder="e.g. #ATB-51491" autocomplete="off"/>
+          </div>
+        </div>
+        <div class="form-error hidden" id="scanError">
+          <span>⚠️</span>
+          <span id="scanErrorText">Booking not found.</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeDriverScanModal()">Cancel</button>
+        <button class="btn btn-primary" id="scanVerifyBtn" onclick="verifyPassengerQR()" disabled>Verify &amp; Board</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOTIFICATION PANEL -->
+  <div class="notif-panel hidden" id="notifPanel">
+    <div class="notif-panel-header">
+      <h3>Notifications</h3>
+      <button onclick="toggleNotifications()">✕</button>
+    </div>
+    <div class="notif-list">
+      <div class="notif-item notif-item--unread">
+        <span class="notif-icon">🎫</span>
+        <div>
+          <p>New booking on BUS-002 — Seat 6B.</p>
+          <small>Just now</small>
+        </div>
+      </div>
+      <div class="notif-item">
+        <span class="notif-icon">📍</span>
+        <div>
+          <p>GPS location synced successfully.</p>
+          <small>5 minutes ago</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

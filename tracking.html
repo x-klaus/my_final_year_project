@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ATBU Smart Transport | Track Bus</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+
+  <!-- Leaflet.js CSS - the map library we use to show the live map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+
+  <!-- Main stylesheet -->
+  <link rel="stylesheet" href="css/style.css"/>
+
+</head>
+<body class="dashboard-page" data-auth-role="student">
+
+  <!-- SIDEBAR NAVIGATION -->
+  <aside class="sidebar" id="sidebar">
+
+    <div class="sidebar-logo">
+      <div class="nav-logo-icon">🚌</div>
+      <div>
+        <div class="nav-logo-text">ATBU Transport</div>
+        <div class="nav-logo-sub">Student Portal</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <ul>
+        <li>
+          <a href="student-dashboard.html" class="sidebar-link">
+            <span class="sidebar-icon">🏠</span>
+            <span>Dashboard</span>
+          </a>
+        </li>
+        <li>
+          <!-- Track Bus is the active page -->
+          <a href="tracking.html" class="sidebar-link active">
+            <span class="sidebar-icon">📍</span>
+            <span>Track Bus</span>
+          </a>
+        </li>
+        <li>
+          <a href="booking.html" class="sidebar-link">
+            <span class="sidebar-icon">🎫</span>
+            <span>Book a Seat</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="sidebar-link" onclick="openWallet()">
+            <span class="sidebar-icon">💰</span>
+            <span>My Wallet</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="sidebar-link" onclick="openPlannedFeature('Collective Bus Request')">
+            <span class="sidebar-icon">🗳️</span>
+            <span>Request a Bus</span>
+          </a>
+        </li>
+        <li>
+          <a href="student-booking-history.html" class="sidebar-link">
+            <span class="sidebar-icon">📋</span>
+            <span>Booking History</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="sidebar-link" onclick="openPlannedFeature('Settings')">
+            <span class="sidebar-icon">⚙️</span>
+            <span>Settings</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a href="login.html" class="sidebar-logout" onclick="handleLogout(event)">
+        <span>🚪</span>
+        <span>Log Out</span>
+      </a>
+    </div>
+
+  </aside>
+
+
+  <!-- MAIN CONTENT -->
+  <main class="dashboard-main">
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+      <div class="topbar-left">
+        <h1 class="topbar-title">Live Bus Tracking</h1>
+        <span class="topbar-date" id="currentDate"></span>
+      </div>
+      <div class="topbar-right">
+        <button class="topbar-btn" onclick="toggleNotifications()" title="Notifications">
+          🔔
+          <span class="notif-dot" id="notifDot"></span>
+        </button>
+        <div class="topbar-user" onclick="toggleUserMenu()">
+          <div class="user-avatar">AU</div>
+          <div class="user-info">
+            <span class="user-name">Audu Wahab</span>
+            <span class="user-role">Student</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="student-mobile-back-bar student-mobile-back-bar--sticky">
+      <a href="student-dashboard.html" class="back-circle-btn" aria-label="Back to dashboard" title="Back to dashboard">←</a>
+    </div>
+
+    <!-- TRACKING CONTENT -->
+    <div class="tracking-content">
+
+      <!-- LEFT PANEL - Bus list and request feature -->
+      <div class="tracking-panel">
+
+        <!-- Route selector -->
+        <div class="route-selector">
+          <div class="route-selector-label">Current Route</div>
+          <div class="route-display">
+            <span class="route-from">Yelwa Campus</span>
+            <span class="route-arrow">→</span>
+            <span class="route-to">Gubi Campus</span>
+          </div>
+        </div>
+
+        <!-- Live status bar -->
+        <div class="live-status-bar">
+          <span class="live-dot-green"></span>
+          <span>Live tracking active</span>
+          <span class="live-update-time" id="lastUpdate">Updated just now</span>
+        </div>
+
+        <!-- Bus list header -->
+        <div class="panel-section-title">Active Buses</div>
+
+        <!-- List of active buses -->
+        <div class="bus-list" id="busList">
+
+          <!-- Bus 1 - Moving -->
+          <div class="bus-item" data-bus-id="bus1" onclick="focusBus('bus1')">
+            <div class="bus-item-icon">🚌</div>
+            <div class="bus-item-info">
+              <span class="bus-item-name">BUS-001</span>
+              <span class="bus-item-meta">Yelwa → Gubi · 18 seats</span>
+              <span class="bus-item-location" id="bus1-location">Near Main Gate</span>
+            </div>
+            <div class="bus-item-right">
+              <span class="bus-badge bus-badge--moving">Moving</span>
+              <span class="bus-item-seats">
+                <span id="bus1-available">6</span> seats left
+              </span>
+            </div>
+          </div>
+
+          <!-- Bus 2 - At stop -->
+          <div class="bus-item" data-bus-id="bus2" onclick="focusBus('bus2')">
+            <div class="bus-item-icon">🚌</div>
+            <div class="bus-item-info">
+              <span class="bus-item-name">BUS-002</span>
+              <span class="bus-item-meta">Yelwa → Gubi · 18 seats</span>
+              <span class="bus-item-location" id="bus2-location">Yelwa Campus Stop</span>
+            </div>
+            <div class="bus-item-right">
+              <span class="bus-badge bus-badge--stopped">At Stop</span>
+              <span class="bus-item-seats">
+                <span id="bus2-available">12</span> seats left
+              </span>
+            </div>
+          </div>
+
+          <!-- Bus 3 - Moving -->
+          <div class="bus-item" data-bus-id="bus3" onclick="focusBus('bus3')">
+            <div class="bus-item-icon">🚌</div>
+            <div class="bus-item-info">
+              <span class="bus-item-name">BUS-003</span>
+              <span class="bus-item-meta">Gubi → Yelwa · 18 seats</span>
+              <span class="bus-item-location" id="bus3-location">Midway Point</span>
+            </div>
+            <div class="bus-item-right">
+              <span class="bus-badge bus-badge--moving">Moving</span>
+              <span class="bus-item-seats">
+                <span id="bus3-available">4</span> seats left
+              </span>
+            </div>
+          </div>
+
+          <!-- Bus 4 - At Gubi (empty - available for request) -->
+          <div class="bus-item" data-bus-id="bus4" onclick="focusBus('bus4')">
+            <div class="bus-item-icon">🚌</div>
+            <div class="bus-item-info">
+              <span class="bus-item-name">BUS-004</span>
+              <span class="bus-item-meta">Gubi Campus · 18 seats</span>
+              <span class="bus-item-location" id="bus4-location">Gubi Campus Stop</span>
+            </div>
+            <div class="bus-item-right">
+              <span class="bus-badge bus-badge--idle">Idle</span>
+              <span class="bus-item-seats">
+                <span id="bus4-available">18</span> seats left
+              </span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- RIGHT SIDE - The actual map -->
+      <div class="map-container">
+
+        <!-- Map toolbar at the top of the map -->
+        <div class="map-toolbar">
+          <div class="map-toolbar-left">
+            <button class="map-btn active" onclick="setMapView('all', this)">All Buses</button>
+            <button class="map-btn" onclick="setMapView('yelwa-gubi', this)">Yelwa → Gubi</button>
+            <button class="map-btn" onclick="setMapView('gubi-yelwa', this)">Gubi → Yelwa</button>
+          </div>
+          <div class="map-toolbar-right">
+            <!-- Refresh button to simulate bus position updates -->
+            <button class="map-btn" id="refreshMapBtn" onclick="refreshBusPositions()" title="Refresh bus positions">
+              <span class="refresh-icon">🔄</span> Refresh
+            </button>
+          </div>
+        </div>
+
+        <!-- The map renders here - Leaflet.js fills this div -->
+        <div id="busMap"></div>
+
+        <!-- Map legend -->
+        <div class="map-legend">
+          <div class="legend-item">
+            <span class="legend-dot" style="background:#2176FF;"></span>
+            <span>Moving</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot" style="background:#1A9E5C;"></span>
+            <span>At Stop</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot" style="background:#FFA500;"></span>
+            <span>Idle</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot" style="background:#CC3333;"></span>
+            <span>Campus stop</span>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+
+  <!-- NOTIFICATION PANEL -->
+  <div class="notif-panel hidden" id="notifPanel">
+    <div class="notif-panel-header">
+      <h3>Notifications</h3>
+      <button onclick="toggleNotifications()">✕</button>
+    </div>
+    <div class="notif-list">
+      <div class="notif-item notif-item--unread">
+        <span class="notif-icon">🚌</span>
+        <div>
+          <p>BUS-002 is 5 minutes away from Yelwa Campus.</p>
+          <small>2 minutes ago</small>
+        </div>
+      </div>
+      <div class="notif-item">
+        <span class="notif-icon">✅</span>
+        <div>
+          <p>Your booking #ATB-00124 has been confirmed.</p>
+          <small>1 hour ago</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Leaflet.js JavaScript - must load before app.js -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Our main JavaScript file -->
+  <script src="js/app.js"></script>
+
+</body>
+</html>

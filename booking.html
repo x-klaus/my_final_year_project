@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ATBU Smart Transport | Book a Seat</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+
+  <!-- QR Code library - generates QR codes in the browser -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <!-- Main stylesheet -->
+  <link rel="stylesheet" href="css/style.css"/>
+
+</head>
+<body class="dashboard-page" data-auth-role="student">
+
+  <!-- SIDEBAR NAVIGATION -->
+  <aside class="sidebar" id="sidebar">
+
+    <div class="sidebar-logo">
+      <div class="nav-logo-icon">🚌</div>
+      <div>
+        <div class="nav-logo-text">ATBU Transport</div>
+        <div class="nav-logo-sub">Student Portal</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <ul>
+        <li>
+          <a href="student-dashboard.html" class="sidebar-link">
+            <span class="sidebar-icon">🏠</span>
+            <span>Dashboard</span>
+          </a>
+        </li>
+        <li>
+          <a href="tracking.html" class="sidebar-link">
+            <span class="sidebar-icon">📍</span>
+            <span>Track Bus</span>
+          </a>
+        </li>
+        <li>
+          <!-- Book a Seat is the active page -->
+          <a href="booking.html" class="sidebar-link active">
+            <span class="sidebar-icon">🎫</span>
+            <span>Book a Seat</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="sidebar-link" onclick="openWallet()">
+            <span class="sidebar-icon">💰</span>
+            <span>My Wallet</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="sidebar-link" onclick="openPlannedFeature('Collective Bus Request')">
+            <span class="sidebar-icon">🗳️</span>
+            <span>Request a Bus</span>
+          </a>
+        </li>
+        <li>
+          <a href="student-booking-history.html" class="sidebar-link">
+            <span class="sidebar-icon">📋</span>
+            <span>Booking History</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="sidebar-link" onclick="openPlannedFeature('Settings')">
+            <span class="sidebar-icon">⚙️</span>
+            <span>Settings</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="sidebar-footer">
+      <a href="login.html" class="sidebar-logout" onclick="handleLogout(event)">
+        <span>🚪</span>
+        <span>Log Out</span>
+      </a>
+    </div>
+
+  </aside>
+
+
+  <!-- MAIN CONTENT -->
+  <main class="dashboard-main">
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+      <div class="topbar-left">
+        <h1 class="topbar-title">Book a Seat</h1>
+        <span class="topbar-date" id="currentDate"></span>
+      </div>
+      <div class="topbar-right">
+        <button class="topbar-btn" onclick="toggleNotifications()" title="Notifications">
+          🔔
+          <span class="notif-dot" id="notifDot"></span>
+        </button>
+        <div class="topbar-user" onclick="toggleUserMenu()">
+          <div class="user-avatar" id="userAvatar">AU</div>
+          <div class="user-info">
+            <span class="user-name" id="userName">Audu Wahab</span>
+            <span class="user-role">Student</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="student-mobile-back-bar student-mobile-back-bar--sticky" id="bookingStepBackBar">
+      <a href="student-dashboard.html" class="back-circle-btn" aria-label="Back to dashboard" title="Back to dashboard">←</a>
+    </div>
+
+    <!-- BOOKING CONTENT -->
+    <div class="booking-content" id="bookingContent">
+
+      <!-- STEP INDICATOR - shows which step the user is on -->
+      <div class="steps-bar">
+        <div class="step step--active" id="step-indicator-1">
+          <div class="step-num">1</div>
+          <span>Choose Route</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step" id="step-indicator-2">
+          <div class="step-num">2</div>
+          <span>Select Bus</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step" id="step-indicator-3">
+          <div class="step-num">3</div>
+          <span>Pick Seat</span>
+        </div>
+        <div class="step-line"></div>
+        <div class="step" id="step-indicator-4">
+          <div class="step-num">4</div>
+          <span>Pay & Confirm</span>
+        </div>
+      </div>
+
+
+      <!-- STEP 1 - Choose Route -->
+      <div class="booking-step" id="step1">
+
+        <div class="booking-step-header">
+          <h2>Where are you going?</h2>
+          <p>Select your route and travel date</p>
+        </div>
+
+        <div class="route-cards">
+
+          <!-- Yelwa to Gubi -->
+          <div class="route-card" id="route-yelwa-gubi" onclick="selectRoute('yelwa-gubi')">
+            <div class="route-card-icon">🚌</div>
+            <div class="route-card-info">
+              <span class="route-card-from">Yelwa Campus</span>
+              <span class="route-card-arrow">→</span>
+              <span class="route-card-to">Gubi Campus</span>
+            </div>
+            <div class="route-card-meta">
+              <span>3 buses available</span>
+              <span class="route-card-fare" data-booking-fare>₦600</span>
+            </div>
+          </div>
+
+          <!-- Gubi to Yelwa -->
+          <div class="route-card" id="route-gubi-yelwa" onclick="selectRoute('gubi-yelwa')">
+            <div class="route-card-icon">🚌</div>
+            <div class="route-card-info">
+              <span class="route-card-from">Gubi Campus</span>
+              <span class="route-card-arrow">→</span>
+              <span class="route-card-to">Yelwa Campus</span>
+            </div>
+            <div class="route-card-meta">
+              <span>2 buses available</span>
+              <span class="route-card-fare" data-booking-fare>₦600</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Booking policy notice -->
+        <div class="policy-box">
+          <div class="policy-title">⚠️ Booking Policy</div>
+          <ul class="policy-list">
+            <li>You must board within <strong>15 minutes</strong> of the bus departing</li>
+            <li>Bus departs <strong>10 minutes</strong> after all seats are filled</li>
+            <li>Missing your bus = fare credited to your next trip</li>
+            <li>Cancel before bus is full = <strong>full refund</strong></li>
+            <li>Cancel after bus is full = <strong>50% refund</strong></li>
+          </ul>
+        </div>
+
+        <button class="btn btn-primary btn-lg" onclick="goToStep(2)" id="step1Next" disabled>
+          Continue → Select a Bus
+        </button>
+
+      </div>
+
+
+      <!-- STEP 2 - Select Bus -->
+      <div class="booking-step hidden" id="step2">
+
+        <div class="booking-step-header">
+          <h2>Available Buses</h2>
+          <p id="step2RouteLabel">Yelwa → Gubi Campus</p>
+        </div>
+
+        <div class="available-buses" id="availableBuses">
+          <!-- Bus cards are generated by JavaScript based on selected route -->
+        </div>
+
+        <div class="step-buttons">
+          <button class="btn btn-outline" onclick="goToStep(1)">← Back</button>
+          <button class="btn btn-primary" onclick="goToStep(3)" id="step2Next" disabled>
+            Continue → Pick Seat
+          </button>
+        </div>
+
+      </div>
+
+
+      <!-- STEP 3 - Pick a Seat -->
+      <div class="booking-step hidden" id="step3">
+
+        <div class="booking-step-header">
+          <h2>Pick Your Seat</h2>
+          <p id="step3BusLabel">BUS-002 · Yelwa → Gubi</p>
+        </div>
+
+        <!-- Seat map legend -->
+        <div class="seat-legend">
+          <div class="seat-legend-item">
+            <div class="seat seat--available"></div>
+            <span>Available</span>
+          </div>
+          <div class="seat-legend-item">
+            <div class="seat seat--taken"></div>
+            <span>Taken</span>
+          </div>
+          <div class="seat-legend-item">
+            <div class="seat seat--selected"></div>
+            <span>Your Pick</span>
+          </div>
+        </div>
+
+        <!-- Visual bus seat map -->
+        <div class="bus-seat-map">
+
+          <!-- Driver area at the front -->
+          <div class="bus-front">
+            <div class="driver-seat">
+              <span>🧑‍✈️</span>
+              <span>Driver</span>
+            </div>
+            <div class="bus-door">🚪 Door</div>
+          </div>
+
+          <!-- Seat rows - generated by JavaScript -->
+          <div class="seat-rows" id="seatRows">
+          </div>
+
+        </div>
+
+        <!-- Selected seat info -->
+        <div class="selected-seat-info hidden" id="selectedSeatInfo">
+          <span>✅ You selected: <strong id="selectedSeatLabel">Seat 1A</strong></span>
+        </div>
+
+        <div class="step-buttons">
+          <button class="btn btn-outline" onclick="goToStep(2)">← Back</button>
+          <button class="btn btn-primary" onclick="goToStep(4)" id="step3Next" disabled>
+            Continue → Pay & Confirm
+          </button>
+        </div>
+
+      </div>
+
+
+      <!-- STEP 4 - Pay & Confirm -->
+      <div class="booking-step hidden" id="step4">
+
+        <div class="booking-step-header">
+          <h2>Confirm & Pay</h2>
+          <p>Review your booking details before paying</p>
+        </div>
+
+        <!-- Booking summary card -->
+        <div class="booking-summary">
+
+          <div class="summary-title">📋 Booking Summary</div>
+
+          <div class="summary-row">
+            <span>Route</span>
+            <strong id="summaryRoute">Yelwa → Gubi</strong>
+          </div>
+          <div class="summary-row">
+            <span>Bus</span>
+            <strong id="summaryBus">BUS-002</strong>
+          </div>
+          <div class="summary-row">
+            <span>Seat</span>
+            <strong id="summarySeat">—</strong>
+          </div>
+          <div class="summary-row">
+            <span>Date</span>
+            <strong id="summaryDate">Today</strong>
+          </div>
+          <div class="summary-divider"></div>
+          <div class="summary-row summary-row--total">
+            <span>Total Fare</span>
+            <strong data-booking-fare>₦600</strong>
+          </div>
+
+        </div>
+
+        <!-- Driver contact info -->
+        <div class="driver-contact-card">
+          <div class="driver-contact-title">🚌 Your Driver</div>
+          <div class="driver-contact-info">
+            <div class="driver-avatar" id="summaryDriverAvatar">—</div>
+            <div>
+              <div class="driver-name" id="summaryDriverName">—</div>
+              <div class="driver-phone" id="summaryDriverPhone">📞 —</div>
+            </div>
+          </div>
+          <div class="contact-buttons">
+            <a href="#" id="summaryCallBtn" class="btn btn-outline btn-sm">
+              📞 Call Driver
+            </a>
+            <a href="#" id="summaryWhatsAppBtn" target="_blank" class="btn btn-primary btn-sm">
+              💬 WhatsApp
+            </a>
+          </div>
+        </div>
+
+        <!-- Payment method selection -->
+        <div class="payment-section">
+          <div class="payment-section-title">💳 Payment Method</div>
+
+          <div class="payment-options-grid">
+
+            <!-- Pay from wallet -->
+            <label class="payment-choice active" id="pay-wallet" onclick="selectPayment('wallet')">
+              <input type="radio" name="payment" value="wallet" checked/>
+              <div class="payment-choice-icon">💰</div>
+              <div>
+                <div class="payment-choice-name">My Wallet</div>
+                <div class="payment-choice-balance" id="payWalletBalance">Balance: —</div>
+              </div>
+            </label>
+
+            <!-- Pay with Paystack -->
+            <label class="payment-choice" id="pay-paystack" onclick="selectPayment('paystack')">
+              <input type="radio" name="payment" value="paystack"/>
+              <div class="payment-choice-icon">💳</div>
+              <div>
+                <div class="payment-choice-name">Paystack</div>
+                <div class="payment-choice-balance">Card / Bank Transfer</div>
+              </div>
+            </label>
+
+            <!-- Pay with Flutterwave -->
+            <label class="payment-choice" id="pay-flutterwave" onclick="selectPayment('flutterwave')">
+              <input type="radio" name="payment" value="flutterwave"/>
+              <div class="payment-choice-icon">🦋</div>
+              <div>
+                <div class="payment-choice-name">Flutterwave</div>
+                <div class="payment-choice-balance">Card / USSD / Transfer</div>
+              </div>
+            </label>
+
+          </div>
+
+        </div>
+
+        <div class="step-buttons step-buttons--stack">
+          <button class="btn btn-primary" onclick="processBookingPayment()" id="payBtn">
+            💳 Pay ₦600 & Confirm Booking
+          </button>
+          <button class="btn btn-outline" onclick="goToStep(3)">← Back</button>
+        </div>
+
+      </div>
+
+
+      <!-- STEP 5 - Booking Confirmation (shown after payment) -->
+      <div class="booking-step hidden" id="step5">
+
+        <div class="confirmation-screen">
+
+          <!-- Success icon -->
+          <div class="confirmation-icon">🎉</div>
+          <h2 class="confirmation-title">Booking Confirmed!</h2>
+          <p class="confirmation-subtitle">Your seat has been reserved. Show the QR code to your driver.</p>
+
+          <!-- Booking ticket card -->
+          <div class="ticket-card">
+
+            <!-- Ticket header -->
+            <div class="ticket-header">
+              <div class="ticket-logo">🚌 ATBU Transport</div>
+              <div class="ticket-ref" id="ticketRef">#ATB-00125</div>
+            </div>
+
+            <!-- Ticket details -->
+            <div class="ticket-details">
+              <div class="ticket-row">
+                <div class="ticket-field">
+                  <span class="ticket-field-label">Passenger</span>
+                  <span class="ticket-field-value">Audu Wahab Ayodele</span>
+                </div>
+                <div class="ticket-field">
+                  <span class="ticket-field-label">Reg Number</span>
+                  <span class="ticket-field-value">20/58646U/1</span>
+                </div>
+              </div>
+              <div class="ticket-row">
+                <div class="ticket-field">
+                  <span class="ticket-field-label">Route</span>
+                  <span class="ticket-field-value" id="ticketRoute">Yelwa → Gubi</span>
+                </div>
+                <div class="ticket-field">
+                  <span class="ticket-field-label">Bus</span>
+                  <span class="ticket-field-value" id="ticketBus">BUS-002</span>
+                </div>
+              </div>
+              <div class="ticket-row">
+                <div class="ticket-field">
+                  <span class="ticket-field-label">Seat</span>
+                  <span class="ticket-field-value ticket-seat" id="ticketSeat">—</span>
+                </div>
+                <div class="ticket-field">
+                  <span class="ticket-field-label">Fare Paid</span>
+                  <span class="ticket-field-value" id="ticketFareValue" data-booking-fare>₦600</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Ticket divider with circles -->
+            <div class="ticket-divider">
+              <div class="ticket-circle ticket-circle--left"></div>
+              <div class="ticket-dashes"></div>
+              <div class="ticket-circle ticket-circle--right"></div>
+            </div>
+
+            <!-- QR Code section -->
+            <div class="ticket-qr">
+              <div id="qrCode"></div>
+              <p class="qr-label">Scan to verify boarding</p>
+            </div>
+
+            <!-- Boarding countdown timer -->
+            <div class="boarding-timer" id="boardingTimer">
+              <div class="boarding-timer-label">⚠️ Board within</div>
+              <div class="boarding-timer-count" id="boardingCountdown">15:00</div>
+              <div class="boarding-timer-note">Seat released if you don't board in time</div>
+            </div>
+
+            <!-- Shown after driver verifies boarding -->
+            <div class="boarding-boarded hidden" id="boardingBoarded">
+              <div class="boarding-boarded-label">✅ Boarded</div>
+              <div class="boarding-boarded-text">Verified by your driver — have a safe trip!</div>
+            </div>
+
+            <!-- Driver contact on ticket -->
+            <div class="ticket-driver">
+              <div class="ticket-driver-label">Your Driver</div>
+              <div class="ticket-driver-info">
+                <span>🧑‍✈️ <span id="ticketDriverName">Musa Ibrahim</span></span>
+                <div class="ticket-driver-contacts">
+                  <a href="#" id="ticketCallBtn" class="ticket-contact-btn">📞 Call</a>
+                  <a href="#" id="ticketWhatsAppBtn" target="_blank" class="ticket-contact-btn ticket-contact-btn--whatsapp">
+                    💬 WhatsApp
+                  </a>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Bus departure status -->
+          <div class="departure-status" id="departureStatus">
+            <div class="departure-status-label">🚌 Bus Status</div>
+            <div class="departure-status-value" id="departureStatusText">
+              Accepting bookings — <span id="seatsLeftCount">14</span> seats remaining
+            </div>
+          </div>
+
+          <!-- Action buttons after confirmation -->
+          <div class="confirmation-actions">
+            <a href="tracking.html" class="btn btn-primary btn-lg">
+              📍 Track My Bus
+            </a>
+            <a href="student-dashboard.html" class="btn btn-outline btn-lg">
+              🏠 Back to Dashboard
+            </a>
+          </div>
+
+        </div>
+
+      </div>
+
+
+    </div>
+
+  </main>
+
+
+  <!-- NOTIFICATION PANEL -->
+  <div class="notif-panel hidden" id="notifPanel">
+    <div class="notif-panel-header">
+      <h3>Notifications</h3>
+      <button onclick="toggleNotifications()">✕</button>
+    </div>
+    <div class="notif-list">
+      <div class="notif-item notif-item--unread">
+        <span class="notif-icon">🚌</span>
+        <div>
+          <p>BUS-002 is now accepting bookings.</p>
+          <small>Just now</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Main JavaScript -->
+  <script src="js/app.js"></script>
+
+</body>
+</html>

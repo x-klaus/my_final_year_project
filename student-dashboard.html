@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ATBU Smart Transport | Student Dashboard</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+
+  <!-- Main stylesheet -->
+  <link rel="stylesheet" href="css/style.css"/>
+
+</head>
+<body class="dashboard-page" data-auth-role="student">
+
+  <!-- SIDEBAR NAVIGATION
+       The left side navigation panel visible on all dashboard pages -->
+  <aside class="sidebar" id="sidebar">
+
+    <!-- Sidebar logo at the top -->
+    <div class="sidebar-logo">
+      <div class="nav-logo-icon">🚌</div>
+      <div>
+        <div class="nav-logo-text">ATBU Transport</div>
+        <div class="nav-logo-sub">Student Portal</div>
+      </div>
+    </div>
+
+    <!-- Sidebar navigation links -->
+    <nav class="sidebar-nav">
+      <ul>
+        <li>
+          <!-- Dashboard - current active page -->
+          <a href="student-dashboard.html" class="sidebar-link active">
+            <span class="sidebar-icon">🏠</span>
+            <span>Dashboard</span>
+          </a>
+        </li>
+        <li>
+          <!-- Track Bus - goes to tracking page -->
+          <a href="tracking.html" class="sidebar-link">
+            <span class="sidebar-icon">📍</span>
+            <span>Track Bus</span>
+          </a>
+        </li>
+        <li>
+          <!-- Book a Seat - goes to booking page -->
+          <a href="booking.html" class="sidebar-link">
+            <span class="sidebar-icon">🎫</span>
+            <span>Book a Seat</span>
+          </a>
+        </li>
+        <li>
+          <!-- My Wallet - opens the top up modal -->
+          <a href="#" class="sidebar-link" onclick="openWallet()">
+            <span class="sidebar-icon">💰</span>
+            <span>My Wallet</span>
+          </a>
+        </li>
+        <li>
+          <!-- Request a Bus - opens the bus request modal -->
+          <a href="#" class="sidebar-link" onclick="openPlannedFeature('Collective Bus Request')">
+            <span class="sidebar-icon">🗳️</span>
+            <span>Request a Bus</span>
+          </a>
+        </li>
+        <li>
+          <!-- Booking History - scrolls down to the history table -->
+          <a href="student-booking-history.html" class="sidebar-link">
+            <span class="sidebar-icon">📋</span>
+            <span>Booking History</span>
+          </a>
+        </li>
+        <li>
+          <!-- Settings - placeholder for now -->
+          <a href="#" class="sidebar-link" onclick="openPlannedFeature('Settings')">
+            <span class="sidebar-icon">⚙️</span>
+            <span>Settings</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Logout button at the bottom of sidebar -->
+    <div class="sidebar-footer">
+      <a href="login.html" class="sidebar-logout" onclick="handleLogout(event)">
+        <span>🚪</span>
+        <span>Log Out</span>
+      </a>
+    </div>
+
+  </aside>
+
+
+  <!-- MAIN CONTENT AREA
+       Everything to the right of the sidebar -->
+  <main class="dashboard-main">
+
+    <!-- TOP BAR - shows page title, notifications, and user info -->
+    <header class="topbar">
+
+      <!-- Mobile menu toggle button - only visible on small screens -->
+      <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
+
+      <div class="topbar-left">
+        <h1 class="topbar-title">Dashboard</h1>
+        <span class="topbar-date" id="currentDate"></span>
+      </div>
+
+      <div class="topbar-right">
+
+        <!-- Notification bell -->
+        <button class="topbar-btn" onclick="toggleNotifications()" title="Notifications">
+          🔔
+          <!-- Red dot shown when there are unread notifications -->
+          <span class="notif-dot" id="notifDot"></span>
+        </button>
+
+        <!-- User avatar and name -->
+        <div class="topbar-user" onclick="toggleUserMenu()">
+          <div class="user-avatar" id="userAvatar">AU</div>
+          <div class="user-info">
+            <span class="user-name" id="userName">Audu Wahab</span>
+            <span class="user-role">Student</span>
+          </div>
+        </div>
+
+      </div>
+
+    </header>
+
+
+    <!-- DASHBOARD CONTENT -->
+    <div class="dashboard-content">
+
+      <!-- WELCOME BANNER -->
+      <div class="welcome-banner">
+        <div class="welcome-text">
+          <h2>Good morning, <span id="welcomeName">Audu</span> 👋</h2>
+          <p>Welcome back! Here's what's happening with your transport today.</p>
+        </div>
+        <div class="welcome-campus">
+          <span class="campus-badge">📍 Yelwa Campus</span>
+        </div>
+      </div>
+
+
+      <!-- STATS CARDS ROW
+           Four quick stats at the top of the dashboard -->
+      <div class="stats-grid">
+
+        <div class="stat-card">
+          <div class="stat-card-icon" style="background: #E8F1FF;">💺</div>
+          <div class="stat-card-info">
+            <span class="stat-card-num" id="statUpcomingBookings">0</span>
+            <span class="stat-card-label">Upcoming Bookings</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-card-icon" style="background: #E8F8F0;">✅</div>
+          <div class="stat-card-info">
+            <span class="stat-card-num" id="statTripsCompleted">0</span>
+            <span class="stat-card-label">Trips Completed</span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-card-icon" style="background: #FFF8E8;">🗳️</div>
+          <div class="stat-card-info">
+            <span class="stat-card-num">—</span>
+            <span class="stat-card-label">Bus Request <small style="display:block;font-weight:400;color:#5A7499;">Next release</small></span>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-card-icon" style="background: #F0F0FF;">⭐</div>
+          <div class="stat-card-info">
+            <span class="stat-card-num">1.0</span>
+            <span class="stat-card-label">Your Rating</span>
+          </div>
+        </div>
+
+      </div>
+
+
+      <!-- MIDDLE ROW - Wallet + Quick Actions -->
+      <div class="mid-grid">
+
+        <!-- WALLET CARD -->
+        <div class="wallet-card">
+
+          <div class="wallet-header">
+            <div>
+              <span class="wallet-label">My Wallet Balance</span>
+              <!-- Eye icon to show/hide balance -->
+              <button type="button" class="wallet-toggle visibility-toggle--visible" id="walletBalanceToggle" onclick="toggleWalletBalance()" aria-label="Hide balance" title="Hide balance">
+                <svg class="password-toggle-icon password-toggle-icon--show" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+                <svg class="password-toggle-icon password-toggle-icon--hide" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                  <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                  <line x1="1" y1="1" x2="23" y2="23"/>
+                </svg>
+              </button>
+            </div>
+            <span class="wallet-icon wallet-icon-naira" aria-hidden="true">₦</span>
+          </div>
+
+          <!-- Wallet balance amount - can be hidden -->
+          <div class="wallet-balance" id="walletBalance">
+            ₦2,500.<span class="wallet-kobo">00</span>
+          </div>
+
+          <!-- Shown when balance is hidden -->
+          <div class="wallet-balance hidden" id="walletHidden">₦ ****</div>
+
+          <!-- Wallet action buttons -->
+          <div class="wallet-actions">
+            <button class="btn btn-white btn-sm" onclick="openTopUpModal()">
+              ➕ Top Up
+            </button>
+            <button class="btn btn-ghost-dark btn-sm" onclick="openWalletHistory()">
+              📋 History
+            </button>
+          </div>
+
+          <!-- Recent wallet activity -->
+          <div class="wallet-recent">
+            <span class="wallet-recent-label">Last transaction</span>
+            <span class="wallet-recent-value" id="walletRecentValue">No bus bookings today</span>
+          </div>
+
+        </div>
+
+
+        <!-- QUICK ACTIONS CARD -->
+        <div class="quick-actions-card">
+          <h3 class="card-title">Quick Actions</h3>
+
+          <div class="quick-actions-grid">
+
+            <a href="tracking.html" class="quick-action">
+              <div class="quick-action-icon">📍</div>
+              <span>Track Bus</span>
+            </a>
+
+            <a href="booking.html" class="quick-action">
+              <div class="quick-action-icon">🎫</div>
+              <span>Book Seat</span>
+            </a>
+
+            <a href="#" class="quick-action" onclick="openPlannedFeature('Collective Bus Request')">
+              <div class="quick-action-icon">🗳️</div>
+              <span>Request Bus</span>
+            </a>
+
+            <a href="#" class="quick-action" onclick="openTopUpModal()">
+              <div class="quick-action-icon">💳</div>
+              <span>Top Up</span>
+            </a>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- BOTTOM ROW - Upcoming Bookings + Active Bus Request -->
+      <div class="bottom-grid">
+
+        <!-- UPCOMING BOOKINGS -->
+        <div class="dashboard-card">
+          <div class="card-header">
+            <h3 class="card-title">Upcoming Booking</h3>
+            </div>
+
+          <div class="bookings-list" id="bookingsList">
+
+            <div class="empty-state" id="noBookingState">
+            <span class="empty-icon">🎫</span>
+            <p>No upcoming bookings.</p>
+            </div>
+
+            <div class="booking-item hidden" id="activeBookingItem">
+            <div class="booking-icon">🚌</div>
+            <div class="booking-info">
+                <span class="booking-route">Yelwa → Gubi Campus</span>
+                <span class="booking-meta" id="dashBookingMeta">—</span>
+                <span class="booking-meta" id="dashBookingRef" style="color:#2176FF; font-weight:600;"></span>
+            </div>
+            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;">
+            <span class="booking-status booking-status--confirmed" id="dashBookingStatus">Confirmed</span>
+            <button type="button" class="btn btn-outline btn-sm" id="dashCancelBookingBtn" onclick="cancelBooking()" style="font-size:0.75rem; padding:4px 12px; color:#CC3333; border-color:#CC3333;">
+            Cancel
+            </button>
+            </div>
+            </div>
+
+            <!-- view ticket button as full width-->
+             <a href="booking.html" id="viewTicketBtn" class="btn btn-primary btn-full hidden" style="margin-top:10px; justify-content:center;">
+                🎫 View Ticket
+             </a>
+
+          </div>
+
+        </div>
+
+
+        <!-- ACTIVE BUS REQUEST — planned for next front-end release -->
+        <div class="dashboard-card">
+          <div class="card-header">
+            <h3 class="card-title">Active Bus Request</h3>
+            <span class="feature-badge feature-badge--soon">Next release</span>
+          </div>
+
+          <div class="empty-state">
+            <span class="empty-icon">🗳️</span>
+            <p>Collective bus requests are planned for the next front-end release.</p>
+            <button type="button" class="btn btn-outline" onclick="openPlannedFeature('Collective Bus Request')">
+              Learn more
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+
+      <!-- RECENT BOOKING HISTORY — last 5 only; full list on student-booking-history.html -->
+      <div class="dashboard-card" style="margin-top: 24px;">
+        <div class="card-header">
+          <h3 class="card-title">Recent Booking History</h3>
+        </div>
+
+        <div class="table-wrapper">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Booking Ref</th>
+                <th>Route</th>
+                <th>Bus</th>
+                <th>Seat</th>
+                <th>Date</th>
+                <th>Amount</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="bookingHistoryBody">
+            </tbody>
+          </table>
+          <div class="empty-state hidden" id="bookingHistoryEmpty">
+            <span class="empty-icon">📋</span>
+            <p>No booking history yet.</p>
+          </div>
+        </div>
+
+        <div class="card-footer card-footer--center hidden" id="bookingHistoryViewAll">
+          <a href="student-booking-history.html" class="btn btn-outline btn-sm booking-history-view-all-btn">View all</a>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+
+  <!-- TOP UP WALLET MODAL -->
+  <div class="modal-overlay hidden" id="topUpOverlay" onclick="closeTopUpModal()">
+    <div class="modal" onclick="event.stopPropagation()">
+
+      <div class="modal-header">
+        <h3>💰 Top Up Wallet</h3>
+        <button class="modal-close" onclick="closeTopUpModal()">✕</button>
+      </div>
+
+      <div class="modal-body">
+
+        <p class="modal-desc">Select an amount or enter a custom amount to add to your wallet.</p>
+
+        <div class="amount-grid">
+          <button class="amount-btn" onclick="selectAmount(500)">₦500</button>
+          <button class="amount-btn" onclick="selectAmount(1000)">₦1,000</button>
+          <button class="amount-btn" onclick="selectAmount(2000)">₦2,000</button>
+          <button class="amount-btn" onclick="selectAmount(5000)">₦5,000</button>
+        </div>
+
+        <div class="form-group" style="margin-top: 16px;">
+          <label for="customAmount">Or enter custom amount (₦)</label>
+          <div class="input-wrapper">
+            <span class="input-icon">₦</span>
+            <input
+              type="number"
+              id="customAmount"
+              placeholder="e.g. 3000"
+              min="100"
+              oninput="onCustomAmount()"
+            />
+          </div>
+        </div>
+
+        <div class="selected-amount" id="selectedAmountDisplay">
+          Amount to add: <strong id="selectedAmountText">₦0</strong>
+        </div>
+
+        <div class="form-group" style="margin-top: 16px;">
+          <label>Payment Method</label>
+          <div class="payment-methods">
+            <label class="payment-option">
+              <input type="radio" name="payMethod" value="paystack" checked/>
+              <span>💳 Paystack</span>
+            </label>
+            <label class="payment-option">
+              <input type="radio" name="payMethod" value="flutterwave"/>
+              <span>🦋 Flutterwave</span>
+            </label>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeTopUpModal()">Cancel</button>
+        <button class="btn btn-primary" id="topUpPayBtn" onclick="processTopUp()" disabled>Proceed to Pay</button>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- BUS REQUEST MODAL -->
+  <div class="modal-overlay hidden" id="busRequestOverlay" onclick="closeBusRequest()">
+    <div class="modal" onclick="event.stopPropagation()">
+
+      <div class="modal-header">
+        <h3>🗳️ Request a Bus</h3>
+        <button class="modal-close" onclick="closeBusRequest()">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <p class="modal-desc">
+          Start or join a collective bus request for your campus.
+          The bus will be dispatched once enough passengers confirm.
+        </p>
+
+        <div class="form-group">
+          <label>Your Current Campus</label>
+          <div class="input-wrapper">
+            <span class="input-icon">📍</span>
+            <select class="form-select" id="requestCampus">
+              <option value="yelwa">Yelwa Campus</option>
+              <option value="gubi">Gubi Campus</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Destination</label>
+          <div class="input-wrapper">
+            <span class="input-icon">🏁</span>
+            <select class="form-select" id="requestDestination">
+              <option value="gubi">Gubi Campus</option>
+              <option value="yelwa">Yelwa Campus</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="request-info-box">
+          <span>ℹ️</span>
+          <span>A minimum of 18 passengers is required to dispatch a bus.</span>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeBusRequest()">Cancel</button>
+        <button class="btn btn-primary" onclick="submitBusRequest()">Join / Start Request</button>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- NOTIFICATION PANEL -->
+  <div class="notif-panel hidden" id="notifPanel">
+    <div class="notif-panel-header">
+      <h3>Notifications</h3>
+      <button onclick="toggleNotifications()">✕</button>
+    </div>
+    <div class="notif-list">
+      <div class="notif-item notif-item--unread">
+        <span class="notif-icon">🚌</span>
+        <div>
+          <p>BUS-002 is 5 minutes away from Yelwa Campus.</p>
+          <small>2 minutes ago</small>
+        </div>
+      </div>
+      <div class="notif-item notif-item--unread">
+        <span class="notif-icon">✅</span>
+        <div>
+          <p>Your booking #ATB-00124 has been confirmed.</p>
+          <small>1 hour ago</small>
+        </div>
+      </div>
+      <div class="notif-item">
+        <span class="notif-icon">💰</span>
+        <div>
+          <p>₦600 deducted from your wallet for booking #ATB-00123.</p>
+          <small>Yesterday</small>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- CANCEL BOOKING CONFIRM MODAL -->
+  <div class="modal-overlay hidden" id="cancelBookingOverlay" onclick="closeCancelBookingModal()">
+    <div class="modal cancel-booking-modal" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Cancel booking?</h3>
+        <button type="button" class="modal-close" onclick="closeCancelBookingModal()" aria-label="Close">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">
+          Are you sure you want to cancel your booking? The full fare
+          (<strong id="cancelBookingRefundAmount">₦600.00</strong>) will be refunded to your wallet.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" onclick="closeCancelBookingModal()">Keep Booking</button>
+        <button type="button" class="btn btn-outline-danger" onclick="confirmCancelBooking()">Yes, Cancel</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- JavaScript file -->
+  <script src="js/app.js"></script>
+
+</body>
+</html>
